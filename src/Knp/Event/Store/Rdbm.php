@@ -5,14 +5,17 @@ namespace Knp\Event\Store;
 use Knp\Event\Store;
 use Knp\Event\Event;
 use \PDO;
+use Knp\Event\Serializer;
 
 class Rdbm implements Store
 {
     private $pdo;
+    private $serializer;
 
-    public function __construct(\PDO $pdo)
+    public function __construct(\PDO $pdo, Serializer $serializer)
     {
         $this->pdo = $pdo;
+        $this->serializer = $serializer;
     }
 
     public function add(Event $event)
@@ -21,7 +24,7 @@ class Rdbm implements Store
         $statement->bindValue('name', $event->getName());
         $statement->bindValue('provider_class', $event->getProviderClass());
         $statement->bindValue('provider_id', $event->getProviderId());
-        $statement->bindValue('attributes', serialize($event->getAttributes()), PDO::PARAM_LOB);
+        $statement->bindValue('attributes', $this->serializer->serialize($event), PDO::PARAM_LOB);
         $statement->execute();
     }
 
@@ -33,7 +36,7 @@ class Rdbm implements Store
         $statement->execute();
 
         return new \ArrayIterator($statement->fetchAll(PDO::FETCH_FUNC, function($name, $providerClass, $providerId, $attributes) {
-            $event = new \Knp\Event\Event\Generic($name, unserialize(stream_get_contents($attributes)));
+            $event = new \Knp\Event\Event\Generic($name, $this->serializer->unserialize(stream_get_contents($attributes)->getAttributes()));
             $event->setProviderClass($providerClass);
             $event->setProviderId($providerId);
 

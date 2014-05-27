@@ -252,8 +252,8 @@ $evm->addEventSubscriber(new RDBMProjector);
 $repository = new \Knp\Event\Repository(
     new \Knp\Event\Store\Dispatcher(
         //new \Knp\Event\Store\InMemory,
-        //new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store')),
-        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event')),
+        new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize')),
+        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize')),
         $evm
     ),
     new \Knp\Event\Player

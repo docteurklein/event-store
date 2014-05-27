@@ -6,20 +6,26 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use \MongoDB;
 use \MongoCollection;
+use \MongoBinData;
+use Knp\Event\Serializer;
 
 class Mongo implements Store
 {
     private $events;
-    private $transformer;
+    private $serializer;
 
-    public function __construct(MongoDB $events)
+    public function __construct(MongoDB $events, Serializer $serializer)
     {
         $this->events = $events;
+        $this->serializer = $serializer;
     }
 
     public function add(Event $event)
     {
-        $this->events->selectCollection($event->getProviderClass())->insert(['id' => (string)$event->getProviderId(), 'event' => serialize($event)]);
+        $this->events->selectCollection($event->getProviderClass())->insert([
+            'id' => (string)$event->getProviderId(),
+            'event' => new MongoBinData($this->serializer->serialize($event)),
+        ]);
     }
 
     public function byProvider($class, $id)
@@ -30,7 +36,7 @@ class Mongo implements Store
 
         $events = [];
         foreach ($documents as $document) {
-            $events[] = unserialize($document['event']);
+            $events[] = $this->serializer->unserialize((string) $document['event']);
         }
 
         return new \ArrayIterator($events);
