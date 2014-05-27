@@ -4,14 +4,14 @@ namespace Knp\Event\Example\Shop;
 
 require __DIR__.'/../vendor/autoload.php';
 
-class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provider
+class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provider, \Serializable
 {
     use \Knp\Event\Popper;
 
-    public $id;
-    public $name;
-    public $attributes;
-    public $createdAt;
+    private $id;
+    private $name;
+    private $attributes;
+    private $createdAt;
 
     public function __construct($id, $name, array $attributes, \DateTime $createdAt = null)
     {
@@ -69,13 +69,33 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
             'ProductRenamed' => 'rename',
         ];
     }
+
+    public function serialize()
+    {
+        return serialize([
+            $this->id,
+            $this->name,
+            'attributes' => $this->attributes,
+            'createdAt' => $this->createdAt,
+        ]);
+    }
+
+    public function unserialize($data)
+    {
+        list(
+            $this->id,
+            $this->name,
+            $this->attributes,
+            $this->createdAt
+        ) = unserialize($data);
+    }
 }
 
 class Attribute
 {
-    public $id;
-    public $name;
-    public $value;
+    private $id;
+    private $name;
+    private $value;
 
     public function __construct($id, $name, $value)
     {
@@ -92,8 +112,8 @@ class Attribute
 
 class Price
 {
-    public $currency;
-    public $value;
+    private $currency;
+    private $value;
 
     public function __construct($currency, $value)
     {
@@ -104,6 +124,90 @@ class Price
     public function __toString()
     {
         return sprintf('%s %s', $this->currency, $this->value);
+    }
+}
+
+class Cart implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provider
+{
+    use \Knp\Event\Popper;
+
+    private $id;
+    private $items;
+    private $attributes;
+    private $createdAt;
+
+    public function __construct($id, array $items, \DateTime $createdAt = null)
+    {
+        $this->id = $id;
+        $this->items = $items;
+        $this->createdAt = $createdAt ?: new \DateTime;
+
+        $this->events[] = new \Knp\Event\Event\Generic('CartCreated', [
+            'id' => $this->id,
+            'name' => $items,
+            'attributes' => $attributes,
+            'createdAt' => $this->createdAt,
+        ]);
+
+    }
+
+    public function getReplayableSteps()
+    {
+        return [
+            'CartCreated' => '__construct',
+            'ItemAdded' => 'addItem',
+        ];
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function addItem(Item $item)
+    {
+        $this->items[] = $item;
+        $this->events[] = new \Knp\Event\Event\Generic('ItemAdded', [
+            'item' => $item,
+        ]);
+    }
+}
+
+class Item implements \Knp\Event\Provider
+{
+    use \Knp\Event\Popper;
+
+    private $id;
+    private $cart;
+    private $product;
+    private $quantity;
+    private $createdAt;
+
+    public function __construct($id, Cart $cart, Product $product, $quantity, \DateTime $createdAt = null)
+    {
+        $this->id = $id;
+        $this->cart = $cart;
+        $this->product = $product;
+        $this->quantity = $quantity;
+        $this->createdAt = $createdAt ?: new \DateTime;
+
+        $this->events[] = new \Knp\Event\Event\Generic('ItemCreated', [
+            'id' => $id,
+            'cart' => $cart,
+            'product' => $product,
+            'quantity' => $quantity,
+            'createdAt' => $this->createdAt,
+        ]);
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getQuantity()
+    {
+        return $this->quantity;
     }
 }
 
@@ -141,3 +245,16 @@ class RDBMProjector implements \Doctrine\Common\EventSubscriber
         $statement->execute();
     }
 }
+
+$evm = new \Doctrine\Common\EventManager;
+$evm->addEventSubscriber(new RDBMProjector);
+
+$repository = new \Knp\Event\Repository(
+    new \Knp\Event\Store\Dispatcher(
+        //new \Knp\Event\Store\InMemory,
+        //new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store')),
+        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event')),
+        $evm
+    ),
+    new \Knp\Event\Player
+);

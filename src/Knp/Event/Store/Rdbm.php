@@ -10,9 +10,9 @@ class Rdbm implements Store
 {
     private $pdo;
 
-    public function __construct(\PDO $pdo = null)
+    public function __construct(\PDO $pdo)
     {
-        $this->pdo = $pdo ?: new \PDO('pgsql:dbname=event_store');
+        $this->pdo = $pdo;
     }
 
     public function add(Event $event)
@@ -21,7 +21,7 @@ class Rdbm implements Store
         $statement->bindValue('name', $event->getName());
         $statement->bindValue('provider_class', $event->getProviderClass());
         $statement->bindValue('provider_id', $event->getProviderId());
-        $statement->bindValue('attributes', base64_encode(serialize($event->getAttributes())));
+        $statement->bindValue('attributes', serialize($event->getAttributes()), PDO::PARAM_LOB);
         $statement->execute();
     }
 
@@ -33,7 +33,7 @@ class Rdbm implements Store
         $statement->execute();
 
         return new \ArrayIterator($statement->fetchAll(PDO::FETCH_FUNC, function($name, $providerClass, $providerId, $attributes) {
-            $event = new \Knp\Event\Event\Generic($name, unserialize(base64_decode($attributes)));
+            $event = new \Knp\Event\Event\Generic($name, unserialize(stream_get_contents($attributes)));
             $event->setProviderClass($providerClass);
             $event->setProviderId($providerId);
 
