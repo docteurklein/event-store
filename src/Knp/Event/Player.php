@@ -18,6 +18,7 @@ class Player
 
         $object = $reflect->newInstanceWithoutConstructor();
         $methods = $object->getReplayableSteps();
+        die(var_dump($events));
         foreach ($events as $event) {
             if (isset($methods[$event->getName()])) {
                 $method = $methods[$event->getName()];

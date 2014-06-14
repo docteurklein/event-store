@@ -22,21 +22,21 @@ class Mongo implements Store
 
     public function add(Event $event)
     {
-        $this->events->selectCollection($event->getProviderClass())->insert([
-            'id' => (string)$event->getProviderId(),
-            'event' => new MongoBinData($this->serializer->serialize($event)),
-        ]);
+        //die(json_encode($this->serializer->serialize($event)));
+        $this->events->selectCollection($event->getProviderClass())->insert(
+            $this->serializer->serialize($event)
+        );
     }
 
     public function byProvider($class, $id)
     {
         $documents = $this->events->selectCollection($class)->find([
-            'id' => $id,
+            'provider_id.__value__' => (string)$id,
         ]);
 
         $events = [];
         foreach ($documents as $document) {
-            $events[] = $this->serializer->unserialize((string) $document['event']);
+            $events[] = $this->serializer->unserialize($document);
         }
 
         return new \ArrayIterator($events);

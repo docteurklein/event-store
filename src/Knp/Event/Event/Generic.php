@@ -5,12 +5,28 @@ namespace Knp\Event\Event;
 use Knp\Event\Event;
 use Knp\Event\Provider;
 use Doctrine\Common\EventArgs;
+use JMS\Serializer\Annotation as Serialize;
 
 class Generic extends EventArgs implements Event, \Serializable
 {
+    /**
+     * @Serialize\Type("string")
+     **/
     private $name;
-    private $attributes = [];
+
+    /**
+     * @Serialize\Type("array")
+     **/
+    private $attributes;
+
+    /**
+     * @Serialize\Type("string")
+     **/
     private $providerClass;
+
+    /**
+     * @Serialize\Type("Rhumsaa\Uuid\Uuid")
+     **/
     private $providerId;
 
     public function __construct($name, array $attributes)

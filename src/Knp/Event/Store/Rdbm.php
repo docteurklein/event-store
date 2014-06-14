@@ -35,12 +35,14 @@ class Rdbm implements Store
         $statement->bindValue('id', $id);
         $statement->execute();
 
-        return new \ArrayIterator($statement->fetchAll(PDO::FETCH_FUNC, function($name, $providerClass, $providerId, $attributes) {
-            $event = new \Knp\Event\Event\Generic($name, $this->serializer->unserialize(stream_get_contents($attributes)->getAttributes()));
-            $event->setProviderClass($providerClass);
-            $event->setProviderId($providerId);
+        while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            // TODO allow other event classes
 
-            return $event;
-        }));
+            $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(stream_get_contents($row['attributes']))->getAttributes());
+            $event->setProviderClass($row['provider_class']);
+            $event->setProviderId($row['provider_id']);
+
+            yield $event;
+        }
     }
 }

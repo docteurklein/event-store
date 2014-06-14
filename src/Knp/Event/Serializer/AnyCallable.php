@@ -21,7 +21,7 @@ class AnyCallable implements Serializer
         return call_user_func($this->serializer, $event);
     }
 
-    public function unserialize($event)
+    public function unserialize($event, $class = 'Knp\Event\Event\Generic')
     {
         return call_user_func($this->unserializer, $event);
     }

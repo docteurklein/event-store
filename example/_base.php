@@ -4,16 +4,36 @@ namespace Knp\Event\Example\Shop;
 
 require __DIR__.'/../vendor/autoload.php';
 
+\Symfony\Component\Debug\Debug::enable();
+\Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
+
+use JMS\Serializer\Annotation as Serialize;
+
 class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provider, \Serializable
 {
     use \Knp\Event\Popper;
 
+    /**
+     * @Serialize\Type("Rhumsaa\Uuid\Uuid")
+     **/
     private $id;
+
+    /**
+     * @Serialize\Type("string")
+     **/
     private $name;
+
+    /**
+     * @Serialize\Type("array")
+     **/
     private $attributes;
+
+    /**
+     * @Serialize\Type("DateTime")
+     **/
     private $createdAt;
 
-    public function __construct($id, $name, array $attributes, \DateTime $createdAt = null)
+    public function __construct($id, $name, array $attributes, $createdAt = null)
     {
         $this->id = $id;
         $this->name = $name;
@@ -93,8 +113,19 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
 
 class Attribute
 {
+    /**
+     * @Serialize\Type("Rhumsaa\Uuid\Uuid")
+     **/
     private $id;
+
+    /**
+     * @Serialize\Type("string")
+     **/
     private $name;
+
+    /**
+     * @Serialize\Type("string")
+     **/
     private $value;
 
     public function __construct($id, $name, $value)
@@ -249,11 +280,50 @@ class RDBMProjector implements \Doctrine\Common\EventSubscriber
 $evm = new \Doctrine\Common\EventManager;
 $evm->addEventSubscriber(new RDBMProjector);
 
+$serializer = new \Knp\Event\Serializer\Jms(
+    (new \JMS\Serializer\SerializerBuilder)
+        ->setSerializationVisitor('array', new \Knp\Event\Serializer\Jms\Visitor\ArraySerialize(
+            new \JMS\Serializer\Naming\SerializedNameAnnotationStrategy(new \JMS\Serializer\Naming\CamelCaseNamingStrategy))
+        )
+        ->setDeSerializationVisitor('array', new \Knp\Event\Serializer\Jms\Visitor\ArrayDeserialize(
+            new \JMS\Serializer\Naming\SerializedNameAnnotationStrategy(new \JMS\Serializer\Naming\CamelCaseNamingStrategy))
+        )
+        ->configureHandlers(function(\JMS\Serializer\Handler\HandlerRegistry $handlers) {
+            $handlers->registerHandler('serialization', 'Rhumsaa\Uuid\Uuid', 'array', function($visitor, \Rhumsaa\Uuid\Uuid $id, array $type) {
+                return [
+                    '__value__' => (string) $id,
+                    '__type__' => 'Rhumsaa\Uuid\Uuid',
+                ];
+            });
+            $handlers->registerHandler('deserialization', 'Rhumsaa\Uuid\Uuid', 'array', function($visitor, $id, array $type) {
+                return \Rhumsaa\Uuid\Uuid::fromString($id);
+            });
+            $handlers->registerHandler('serialization', 'DateTime', 'array', function($visitor, \DateTime $date, array $type) {
+                return [
+                    '__value__' => $date->format(\DateTime::ISO8601),
+                    '__type__' => 'DateTime',
+                ];
+            });
+            $handlers->registerHandler('deserialization', 'DateTime', 'array', function($visitor, $date, array $type) {
+                return \DateTime::createFromFormat(\DateTime::ISO8601, $date);
+            });
+            $handlers->registerSubscribingHandler(new \Knp\Event\Serializer\Jms\Handler\Event\Generic);
+        })
+        //->setObjectConstructor(new \Knp\Event\Serializer\Jms\Constructor\Event\Generic)
+        ->addDefaultHandlers()
+        ->configureListeners(function(\JMS\Serializer\EventDispatcher\EventDispatcherInterface $dispatcher) {
+            //$dispatcher->addSubscriber(new \Knp\Event\Serializer\Jms\Listener\Event\Generic);
+        })
+    ->build()
+);
+
+//$serializer = new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize');
+
 $repository = new \Knp\Event\Repository(
     new \Knp\Event\Store\Dispatcher(
         //new \Knp\Event\Store\InMemory,
-        new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize')),
-        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize')),
+        //new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), $serializer),
+        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
     new \Knp\Event\Player
