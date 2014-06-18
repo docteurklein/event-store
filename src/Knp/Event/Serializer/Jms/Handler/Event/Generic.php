@@ -62,8 +62,6 @@ class Generic implements SubscribingHandlerInterface
         $event->setProviderClass($data['provider_class']);
         $event->setProviderId($data['provider_id']);
 
-        die(var_dump($event));
-
         return $event;
     }
 }

@@ -4,6 +4,7 @@ namespace Knp\Event;
 
 use Knp\Event\Store;
 use Knp\Event\Player;
+use PhpOption;
 
 class Repository
 {
@@ -29,9 +30,9 @@ class Repository
     {
         $events = iterator_to_array($this->store->byProvider($class, $id));
         if (empty($events)) {
-            return;
+            return PhpOption\None::create();
         }
 
-        return $this->player->replay($events, $class);
+        return new PhpOption\Some($this->player->replay($events, $class));
     }
 }

@@ -58,6 +58,11 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
         return $this->id;
     }
 
+    public function getName()
+    {
+        return $this->name;
+    }
+
     public function rename($name)
     {
         $this->name = $name;
@@ -95,8 +100,8 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
         return serialize([
             $this->id,
             $this->name,
-            'attributes' => $this->attributes,
-            'createdAt' => $this->createdAt,
+            $this->attributes,
+            $this->createdAt,
         ]);
     }
 
@@ -167,7 +172,7 @@ class Cart implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provide
     private $attributes;
     private $createdAt;
 
-    public function __construct($id, array $items, \DateTime $createdAt = null)
+    public function __construct($id, array $items = [], \DateTime $createdAt = null)
     {
         $this->id = $id;
         $this->items = $items;
@@ -175,11 +180,14 @@ class Cart implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provide
 
         $this->events[] = new \Knp\Event\Event\Generic('CartCreated', [
             'id' => $this->id,
-            'name' => $items,
-            'attributes' => $attributes,
+            'items' => $items,
             'createdAt' => $this->createdAt,
         ]);
+    }
 
+    public function __toString()
+    {
+        return sprintf('%s : %s', $this->id, implode(', ', $this->items));
     }
 
     public function getReplayableSteps()
@@ -209,26 +217,28 @@ class Item implements \Knp\Event\Provider
     use \Knp\Event\Popper;
 
     private $id;
-    private $cart;
-    private $product;
+    private $productId;
     private $quantity;
     private $createdAt;
 
-    public function __construct($id, Cart $cart, Product $product, $quantity, \DateTime $createdAt = null)
+    public function __construct($id, $productId, $quantity, \DateTime $createdAt = null)
     {
         $this->id = $id;
-        $this->cart = $cart;
-        $this->product = $product;
+        $this->productId = $productId;
         $this->quantity = $quantity;
         $this->createdAt = $createdAt ?: new \DateTime;
 
         $this->events[] = new \Knp\Event\Event\Generic('ItemCreated', [
             'id' => $id,
-            'cart' => $cart,
-            'product' => $product,
+            'productId' => $productId,
             'quantity' => $quantity,
             'createdAt' => $this->createdAt,
         ]);
+    }
+
+    public function __toString()
+    {
+        return sprintf('%s x %s', $this->quantity, $this->productId);
     }
 
     public function getId()
@@ -239,6 +249,11 @@ class Item implements \Knp\Event\Provider
     public function getQuantity()
     {
         return $this->quantity;
+    }
+
+    public function getProductId()
+    {
+        return $this->productId;
     }
 }
 
@@ -317,13 +332,13 @@ $serializer = new \Knp\Event\Serializer\Jms(
     ->build()
 );
 
-//$serializer = new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize');
+$serializer = new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize');
 
 $repository = new \Knp\Event\Repository(
     new \Knp\Event\Store\Dispatcher(
         //new \Knp\Event\Store\InMemory,
-        //new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), $serializer),
-        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
+        new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), $serializer),
+        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
     new \Knp\Event\Player
