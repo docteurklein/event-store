@@ -4,6 +4,9 @@ namespace Knp\Event;
 
 trait Popper
 {
+    /**
+     * @Serialize\Exclude
+     **/
     private $events = [];
 
     public function popEvents()

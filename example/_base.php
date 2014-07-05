@@ -50,6 +50,7 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
 
     public function __toString()
     {
+        //die(var_dump(($this->attributes)));
         return sprintf('%s %s (%s) at %s', $this->name, $this->id, implode(', ', $this->attributes), $this->createdAt->format('Y-m-d H:i:s'));
     }
 
@@ -216,9 +217,24 @@ class Item implements \Knp\Event\Provider
 {
     use \Knp\Event\Popper;
 
+    /**
+     * @Serialize\Type("Rhumsaa\Uuid\Uuid")
+     **/
     private $id;
+
+    /**
+     * @Serialize\Type("Rhumsaa\Uuid\Uuid")
+     **/
     private $productId;
+
+    /**
+     * @Serialize\Type("integer")
+     **/
     private $quantity;
+
+    /**
+     * @Serialize\Type("DateTime")
+     **/
     private $createdAt;
 
     public function __construct($id, $productId, $quantity, \DateTime $createdAt = null)
@@ -305,40 +321,32 @@ $serializer = new \Knp\Event\Serializer\Jms(
         )
         ->configureHandlers(function(\JMS\Serializer\Handler\HandlerRegistry $handlers) {
             $handlers->registerHandler('serialization', 'Rhumsaa\Uuid\Uuid', 'array', function($visitor, \Rhumsaa\Uuid\Uuid $id, array $type) {
-                return [
-                    '__value__' => (string) $id,
-                    '__type__' => 'Rhumsaa\Uuid\Uuid',
-                ];
+                return (string) $id;
             });
             $handlers->registerHandler('deserialization', 'Rhumsaa\Uuid\Uuid', 'array', function($visitor, $id, array $type) {
                 return \Rhumsaa\Uuid\Uuid::fromString($id);
             });
             $handlers->registerHandler('serialization', 'DateTime', 'array', function($visitor, \DateTime $date, array $type) {
-                return [
-                    '__value__' => $date->format(\DateTime::ISO8601),
-                    '__type__' => 'DateTime',
-                ];
+                return $date->format(\DateTime::ISO8601);
             });
             $handlers->registerHandler('deserialization', 'DateTime', 'array', function($visitor, $date, array $type) {
                 return \DateTime::createFromFormat(\DateTime::ISO8601, $date);
             });
             $handlers->registerSubscribingHandler(new \Knp\Event\Serializer\Jms\Handler\Event\Generic);
         })
-        //->setObjectConstructor(new \Knp\Event\Serializer\Jms\Constructor\Event\Generic)
+        ->setObjectConstructor(new \Knp\Event\Serializer\Jms\Constructor\Event\Generic)
         ->addDefaultHandlers()
-        ->configureListeners(function(\JMS\Serializer\EventDispatcher\EventDispatcherInterface $dispatcher) {
-            //$dispatcher->addSubscriber(new \Knp\Event\Serializer\Jms\Listener\Event\Generic);
-        })
+        ->addDefaultListeners()
     ->build()
 );
 
-$serializer = new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize');
+//$serializer = new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize');
 
 $repository = new \Knp\Event\Repository(
     new \Knp\Event\Store\Dispatcher(
         //new \Knp\Event\Store\InMemory,
-        new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), $serializer),
-        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
+        //new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), $serializer),
+        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
     new \Knp\Event\Player

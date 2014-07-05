@@ -12,4 +12,9 @@ class ArrayDeserialize extends GenericDeserializationVisitor
     {
         return $str;
     }
+
+    public function getResult()
+    {
+        return null;
+    }
 }

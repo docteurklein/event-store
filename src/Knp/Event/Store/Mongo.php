@@ -22,7 +22,6 @@ class Mongo implements Store
 
     public function add(Event $event)
     {
-        //die(json_encode($this->serializer->serialize($event)));
         $this->events->selectCollection($event->getProviderClass())->insert(
             $this->serializer->serialize($event)
         );
@@ -31,7 +30,7 @@ class Mongo implements Store
     public function byProvider($class, $id)
     {
         $documents = $this->events->selectCollection($class)->find([
-            'provider_id.__value__' => (string)$id,
+            'provider_id' => (string)$id,
         ]);
 
         $events = [];

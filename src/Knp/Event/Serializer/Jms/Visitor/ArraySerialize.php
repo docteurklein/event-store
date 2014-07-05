@@ -12,12 +12,4 @@ class ArraySerialize extends JsonSerializationVisitor
     {
         return $this->getRoot();
     }
-
-    //public function endVisitingObject(ClassMetadata $metadata, $data, array $type, Context $context)
-    //{
-    //    $result = parent::endVisitingObject($metadata, $data, $type, $context);
-    //    $result['__type__'] = $metadata->name;
-
-    //    return $result;
-    //}
 }

@@ -14,8 +14,8 @@ Install
 Usage
 -----
 
-    php example/shop.php
-    php example/persist.php <uuid>
+    php example/import_products.php
+    php example/shop.php <product-uuid> <cart-uuid> <quantity>
 
 
 Test

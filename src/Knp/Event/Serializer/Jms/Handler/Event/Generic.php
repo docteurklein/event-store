@@ -13,12 +13,12 @@ class Generic implements SubscribingHandlerInterface
     public static function getSubscribingMethods()
     {
         return [
-            //[
-            //    'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-            //    'format' => 'array',
-            //    'type' => 'Knp\Event\Event\Generic',
-            //    'method' => 'serialize',
-            //],
+            [
+                'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
+                'format' => 'array',
+                'type' => 'Knp\Event\Event\Generic',
+                'method' => 'serialize',
+            ],
 
             [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
@@ -31,36 +31,39 @@ class Generic implements SubscribingHandlerInterface
 
     public function serialize(Visitor\ArraySerialize $visitor, Event\Generic $event, array $type, Context $context)
     {
-        $attributes = [];
-        foreach ($event->getAttributes() as $attribute) {
-            $value = is_scalar($attribute) ? [
-                '__value__' => $attribute,
-                '__type__' => is_object($attribute) ? get_class($attribute) : gettype($attribute),
-            ] : $attribute;
-            $attributes[] = $visitor->getNavigator()->accept($value, null, $context);
-        }
-
-        $data = $visitor->getNavigator()->accept($event, null, $context);
-        $data['attributes'] = $attributes;
+        $data = [
+            'name' => $event->getName(),
+            'provider_class' => $event->getProviderClass(),
+            'provider_id' => $visitor->getNavigator()->accept($event->getProviderId(), null, $context),
+            'attributes' => array_map($closure = function($attribute) use(&$closure, $visitor, $context) {
+                if (is_array($attribute)) {
+                    return [
+                        '__type__' => 'array',
+                        '__value__' => array_map($closure, $attribute),
+                    ];
+                }
+                return [
+                    '__type__' => is_object($attribute) ? get_class($attribute) : gettype($attribute),
+                    '__value__' => $visitor->getNavigator()->accept($attribute, null, $context),
+                ];
+            }, $event->getAttributes()),
+        ];
+        $visitor->setRoot($data);
 
         return $data;
     }
 
     public function deserialize(Visitor\ArrayDeserialize $visitor, $data, array $type, Context $context)
     {
-        foreach ($data['attributes'] as &$attribute) {
-            $type = ['name' => gettype($attribute), 'params' => []];
-            $value = $attribute;
-            if (isset($attribute['__type__'])) {
-                $type = ['name' => $attribute['__type__'], 'params' => []];
-                $value = isset($attribute['__value__']) ? $attribute['__value__'] : $attribute;
+        $attributes = array_map($closure = function($attribute) use(&$closure, $visitor, $context) {
+            if (isset($attribute['__type__']) && 'array' === $attribute['__type__']) {
+                return array_map($closure, $attribute['__value__']);
             }
-            $attribute = $visitor->getNavigator()->accept($value, $type, $context);
-        }
-
-        $event = new Event\Generic($data['name'], $data['attributes']);
+            return $visitor->getNavigator()->accept($attribute['__value__'], [ 'name' => $attribute['__type__'], 'params' =>[] ], $context);
+        }, $data['attributes']);
+        $event = new Event\Generic($data['name'], $attributes);
         $event->setProviderClass($data['provider_class']);
-        $event->setProviderId($data['provider_id']);
+        $event->setProviderId($visitor->getNavigator()->accept($data['provider_id'], ['name' => 'Rhumsaa\Uuid\Uuid', 'params' =>[] ], $context));
 
         return $event;
     }
