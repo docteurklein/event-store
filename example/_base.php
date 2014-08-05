@@ -50,7 +50,6 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
 
     public function __toString()
     {
-        //die(var_dump(($this->attributes)));
         return sprintf('%s %s (%s) at %s', $this->name, $this->id, implode(', ', $this->attributes), $this->createdAt->format('Y-m-d H:i:s'));
     }
 
@@ -334,7 +333,6 @@ $serializer = new \Knp\Event\Serializer\Jms(
             });
             $handlers->registerSubscribingHandler(new \Knp\Event\Serializer\Jms\Handler\Event\Generic);
         })
-        ->setObjectConstructor(new \Knp\Event\Serializer\Jms\Constructor\Event\Generic)
         ->addDefaultHandlers()
         ->addDefaultListeners()
     ->build()
