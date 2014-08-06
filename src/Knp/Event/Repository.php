@@ -4,7 +4,7 @@ namespace Knp\Event;
 
 use Knp\Event\Store;
 use Knp\Event\Player;
-use Knp\Event\Store\NoResult;
+use Knp\Event\Exception\Store\NoResult;
 use PhpOption;
 
 class Repository

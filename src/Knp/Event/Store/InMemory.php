@@ -4,7 +4,7 @@ namespace Knp\Event\Store;
 
 use Knp\Event\Store;
 use Knp\Event\Event;
-use Knp\Event\Store\NoResult;
+use Knp\Event\Exception\Store\NoResult;
 
 class InMemory implements Store
 {

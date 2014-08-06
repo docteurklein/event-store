@@ -6,7 +6,7 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use \PDO;
 use Knp\Event\Serializer;
-use Knp\Event\Store\NoResult;
+use Knp\Event\Exception\Store\NoResult;
 
 class Rdbm implements Store
 {

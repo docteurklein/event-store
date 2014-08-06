@@ -8,7 +8,7 @@ use \MongoDB;
 use \MongoCollection;
 use \MongoBinData;
 use Knp\Event\Serializer;
-use Knp\Event\Store\NoResult;
+use Knp\Event\Exception\Store\NoResult;
 
 class Mongo implements Store
 {
