@@ -347,5 +347,8 @@ $repository = new \Knp\Event\Repository(
         new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
-    new \Knp\Event\Player\ReflectionBased
+    new \Knp\Event\Player\Aggregate(
+        ['Knp\Event\Example\Shop\roduct' => new \Knp\Event\Player\ReflectionBased],
+        new \Knp\Event\Player\ReflectionBased
+    )
 );

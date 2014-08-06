@@ -28,7 +28,7 @@ class Repository
 
     public function find($class, $id)
     {
-        $events = iterator_to_array($this->store->byProvider($class, $id));
+        $events = $this->store->byProvider($class, $id);
         if (empty($events)) {
             return PhpOption\None::create();
         }

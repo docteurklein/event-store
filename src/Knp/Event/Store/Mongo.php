@@ -23,7 +23,7 @@ class Mongo implements Store
     public function add(Event $event)
     {
         $this->events->selectCollection($event->getProviderClass())->insert(
-            $this->serializer->serialize($event)
+            (array)$this->serializer->serialize($event)
         );
     }
 
@@ -33,11 +33,24 @@ class Mongo implements Store
             'provider_id' => (string)$id,
         ]);
 
-        $events = [];
-        foreach ($documents as $document) {
-            $events[] = $this->serializer->unserialize($document);
-        }
+        return new CursorIterator($documents, $this->serializer);
+    }
+}
 
-        return new \ArrayIterator($events);
+/**
+ * TODO tmp
+ * see https://jira.mongodb.org/browse/PHP-820
+ * see https://jira.mongodb.org/browse/PHP-977
+ **/
+class CursorIterator extends \IteratorIterator
+{
+    public function __construct(\Traversable $t, $serializer)
+    {
+        parent::__construct($t);
+        $this->serializer = $serializer;
+    }
+    public function current()
+    {
+        return $this->serializer->unserialize(parent::current());
     }
 }

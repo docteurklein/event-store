@@ -8,10 +8,11 @@ use Knp\Event\AggregateRoot\CanBeReplayed;
 use ReflectionClass;
 use InvalidArgumentException;
 use LogicException;
+use Traversable;
 
 class ReflectionBased implements Player
 {
-    public function replay(array $events, $class)
+    public function replay(Traversable $events, $class)
     {
         $reflect = new ReflectionClass($class);
 

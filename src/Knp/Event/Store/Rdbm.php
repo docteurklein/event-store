@@ -37,7 +37,6 @@ class Rdbm implements Store
 
         while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
             // TODO allow other event classes
-
             $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(stream_get_contents($row['attributes']))->getAttributes());
             $event->setProviderClass($row['provider_class']);
             $event->setProviderId($row['provider_id']);
