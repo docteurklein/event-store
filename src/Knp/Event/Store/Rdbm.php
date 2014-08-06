@@ -6,6 +6,7 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use \PDO;
 use Knp\Event\Serializer;
+use Knp\Event\Store\NoResult;
 
 class Rdbm implements Store
 {
@@ -35,13 +36,19 @@ class Rdbm implements Store
         $statement->bindValue('id', $id);
         $statement->execute();
 
+        $hasFetched = false; // TODO argghh!
         while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $hasFetched = true;
             // TODO allow other event classes
             $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(stream_get_contents($row['attributes']))->getAttributes());
             $event->setProviderClass($row['provider_class']);
             $event->setProviderId($row['provider_id']);
 
             yield $event;
+        }
+
+        if (!$hasFetched) {
+            throw new NoResult;
         }
     }
 }

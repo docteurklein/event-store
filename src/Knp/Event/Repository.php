@@ -4,6 +4,7 @@ namespace Knp\Event;
 
 use Knp\Event\Store;
 use Knp\Event\Player;
+use Knp\Event\Store\NoResult;
 use PhpOption;
 
 class Repository
@@ -28,11 +29,12 @@ class Repository
 
     public function find($class, $id)
     {
-        $events = $this->store->byProvider($class, $id);
-        if (empty($events)) {
+        try {
+            $events = $this->store->byProvider($class, $id);
+            return new PhpOption\Some($this->player->replay($events, $class));
+        }
+        catch(NoResult $e) {
             return PhpOption\None::create();
         }
-
-        return new PhpOption\Some($this->player->replay($events, $class));
     }
 }

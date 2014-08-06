@@ -33,9 +33,9 @@ class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Prov
      **/
     private $createdAt;
 
-    public function __construct($id, $name, array $attributes, $createdAt = null)
+    public function __construct($id = null, $name = null, array $attributes = [], $createdAt = null)
     {
-        $this->id = $id;
+        $this->id = $id ?: \Rhumsaa\Uuid\Uuid::uuid4();
         $this->name = $name;
         $this->attributes = $attributes;
         $this->createdAt = $createdAt ?: new \DateTime;

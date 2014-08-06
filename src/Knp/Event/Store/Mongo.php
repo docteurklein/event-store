@@ -8,6 +8,7 @@ use \MongoDB;
 use \MongoCollection;
 use \MongoBinData;
 use Knp\Event\Serializer;
+use Knp\Event\Store\NoResult;
 
 class Mongo implements Store
 {
@@ -23,7 +24,7 @@ class Mongo implements Store
     public function add(Event $event)
     {
         $this->events->selectCollection($event->getProviderClass())->insert(
-            (array)$this->serializer->serialize($event)
+            $this->serializer->serialize($event)
         );
     }
 
@@ -32,6 +33,9 @@ class Mongo implements Store
         $documents = $this->events->selectCollection($class)->find([
             'provider_id' => (string)$id,
         ]);
+        if (0 === $documents->count()) {
+            throw new NoResult;
+        }
 
         return new CursorIterator($documents, $this->serializer);
     }
