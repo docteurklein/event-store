@@ -347,5 +347,5 @@ $repository = new \Knp\Event\Repository(
         new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
-    new \Knp\Event\Player
+    new \Knp\Event\Player\ReflectionBased
 );
