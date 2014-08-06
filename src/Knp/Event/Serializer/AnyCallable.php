@@ -5,7 +5,7 @@ namespace Knp\Event\Serializer;
 use Knp\Event\Serializer;
 use Knp\Event\Event;
 
-class AnyCallable implements Serializer
+final class AnyCallable implements Serializer
 {
     private $serializer;
     private $unserializer;

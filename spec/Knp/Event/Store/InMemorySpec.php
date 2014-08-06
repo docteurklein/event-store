@@ -6,7 +6,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Knp\Event\Event;
 
-class InMemorySpec extends ObjectBehavior
+final class InMemorySpec extends ObjectBehavior
 {
     function it_is_initializable()
     {

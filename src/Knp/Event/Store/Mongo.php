@@ -10,7 +10,7 @@ use \MongoBinData;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
 
-class Mongo implements Store
+final class Mongo implements Store
 {
     private $events;
     private $serializer;
@@ -46,13 +46,14 @@ class Mongo implements Store
  * see https://jira.mongodb.org/browse/PHP-820
  * see https://jira.mongodb.org/browse/PHP-977
  **/
-class CursorIterator extends \IteratorIterator
+final class CursorIterator extends \IteratorIterator
 {
     public function __construct(\Traversable $t, $serializer)
     {
         parent::__construct($t);
         $this->serializer = $serializer;
     }
+
     public function current()
     {
         return $this->serializer->unserialize(parent::current());

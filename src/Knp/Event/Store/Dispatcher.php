@@ -6,7 +6,7 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use Doctrine\Common\EventManager;
 
-class Dispatcher implements Store
+final class Dispatcher implements Store
 {
     private $store;
     private $dispatcher;

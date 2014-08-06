@@ -7,7 +7,7 @@ use Knp\Event\Player;
 use Knp\Event\Exception\Store\NoResult;
 use PhpOption;
 
-class Repository
+final class Repository
 {
     private $store;
     private $player;

@@ -10,7 +10,7 @@ use InvalidArgumentException;
 use LogicException;
 use Traversable;
 
-class ReflectionBased implements Player
+final class ReflectionBased implements Player
 {
     public function replay(Traversable $events, $class)
     {

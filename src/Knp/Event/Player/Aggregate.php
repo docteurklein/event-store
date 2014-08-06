@@ -6,7 +6,7 @@ use Knp\Event\Player;
 use Knp\Event\Event;
 use Traversable;
 
-class Aggregate implements Player
+final class Aggregate implements Player
 {
     private $players;
     private $default;

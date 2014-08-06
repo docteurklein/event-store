@@ -8,7 +8,7 @@ use \PDO;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
 
-class Rdbm implements Store
+final class Rdbm implements Store
 {
     private $pdo;
     private $serializer;

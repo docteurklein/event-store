@@ -8,7 +8,7 @@ use Knp\Event\Serializer\Jms\Visitor;
 use Knp\Event\Event;
 use JMS\Serializer\Context;
 
-class Generic implements SubscribingHandlerInterface
+final class Generic implements SubscribingHandlerInterface
 {
     public static function getSubscribingMethods()
     {

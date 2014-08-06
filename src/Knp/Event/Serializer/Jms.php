@@ -6,7 +6,7 @@ use Knp\Event\event;
 use Knp\Event\Serializer;
 use JMS\Serializer\Serializer as JmsSerializer;
 
-class Jms implements Serializer
+final class Jms implements Serializer
 {
     private $serializer;
     private $format;

@@ -7,7 +7,7 @@ use Knp\Event\Provider;
 use Doctrine\Common\EventArgs;
 use JMS\Serializer\Annotation as Serialize;
 
-class Generic extends EventArgs implements Event, \Serializable
+final class Generic extends EventArgs implements Event, \Serializable
 {
     /**
      * @Serialize\Type("string")

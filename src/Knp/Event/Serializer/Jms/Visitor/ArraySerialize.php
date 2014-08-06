@@ -6,7 +6,7 @@ use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\Context;
 
-class ArraySerialize extends JsonSerializationVisitor
+final class ArraySerialize extends JsonSerializationVisitor
 {
     public function getResult()
     {

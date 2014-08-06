@@ -6,7 +6,7 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use Knp\Event\Exception\Store\NoResult;
 
-class InMemory implements Store
+final class InMemory implements Store
 {
     private $events = [];
 

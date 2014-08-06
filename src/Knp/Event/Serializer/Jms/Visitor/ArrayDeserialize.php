@@ -6,7 +6,7 @@ use JMS\Serializer\GenericDeserializationVisitor;
 use JMS\Serializer\Metadata\ClassMetadata;
 use JMS\Serializer\Context;
 
-class ArrayDeserialize extends GenericDeserializationVisitor
+final class ArrayDeserialize extends GenericDeserializationVisitor
 {
     public function decode($str)
     {

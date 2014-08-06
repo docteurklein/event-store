@@ -1,9 +1,9 @@
 <?php
 
-namespace Knp\Event\Exeption\Store;
+namespace Knp\Event\Exception\Store;
 
 use Knp\Event\Exception;
 
-class NoResult extends Exception
+final class NoResult extends Exception
 {
 }
