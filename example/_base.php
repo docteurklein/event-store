@@ -276,9 +276,9 @@ class RDBMProjector implements \Doctrine\Common\EventSubscriber
 {
     private $pdo;
 
-    public function __construct(\PDO $pdo = null)
+    public function __construct(\PDO $pdo)
     {
-        $this->pdo = $pdo ?: new \PDO('pgsql:dbname=event_store_projection');
+        $this->pdo = $pdo;
     }
 
     public function getSubscribedEvents()
@@ -308,7 +308,7 @@ class RDBMProjector implements \Doctrine\Common\EventSubscriber
 }
 
 $evm = new \Doctrine\Common\EventManager;
-$evm->addEventSubscriber(new RDBMProjector);
+$evm->addEventSubscriber(new RDBMProjector(new \PDO('pgsql:dbname=event_store')));
 
 $serializer = new \Knp\Event\Serializer\Jms(
     (new \JMS\Serializer\SerializerBuilder)
