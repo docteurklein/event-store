@@ -341,14 +341,14 @@ $serializer = new \Knp\Event\Serializer\Jms(
 $repository = new \Knp\Event\Repository(
     new \Knp\Event\Store\Dispatcher(
         //new \Knp\Event\Store\InMemory,
-        new \Knp\Event\Store\Rdbm(
-            new \PDO('pgsql:dbname=event_store', null, null, [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_EMULATE_PREPARES => 0,
-            ]),
-            $serializer
-        ),
-        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
+        //new \Knp\Event\Store\Rdbm(
+        //    new \PDO('pgsql:dbname=event_store', null, null, [
+        //        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        //        \PDO::ATTR_EMULATE_PREPARES => 0,
+        //    ]),
+        //    $serializer
+        //),
+        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
     new \Knp\Event\Player\Aggregate(

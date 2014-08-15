@@ -1,5 +1,5 @@
-event-store
-===========
+docteurklein/event-store
+========================
 
 a php5.4+ event store.
 
@@ -11,11 +11,11 @@ Install
     composer install
 
 
-Usage
------
+Use
+---
 
     php example/import_products.php
-    php example/shop.php <product-uuid> <cart-uuid> <quantity>
+    php example/shop.php <product-uuid> <cart-uuid = null> <quantity>
 
 
 Test
