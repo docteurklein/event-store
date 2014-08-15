@@ -23,15 +23,15 @@ final class Mongo implements Store
 
     public function add(Event $event)
     {
-        $this->events->selectCollection($event->getProviderClass())->insert(
+        $this->events->selectCollection($event->getEmitterClass())->insert(
             $this->serializer->serialize($event)
         );
     }
 
-    public function byProvider($class, $id)
+    public function findBy($class, $id)
     {
         $documents = $this->events->selectCollection($class)->find([
-            'provider_id' => (string)$id,
+            'emitter_id' => (string)$id,
         ]);
         if (0 === $documents->count()) {
             throw new NoResult;

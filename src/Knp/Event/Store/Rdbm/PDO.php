@@ -8,7 +8,7 @@ use \PDO;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
 
-final class Rdbm implements Store
+final class PDOBased implements Store
 {
     private $pdo;
     private $serializer;
@@ -21,7 +21,11 @@ final class Rdbm implements Store
 
     public function add(Event $event)
     {
-        $statement = $this->pdo->prepare('INSERT INTO event ( name, emitter_class, emitter_id, attributes ) VALUES ( :name, :emitter_class, :emitter_id, :attributes );');
+        $statement = $this->pdo->prepare('INSERT INTO event
+            (  event_class,  name,  emitter_class,  emitter_id,  attributes ) VALUES
+            ( :event_class, :name, :emitter_class, :emitter_id, :attributes )
+        ;');
+        $statement->bindValue('event_class', get_class($event));
         $statement->bindValue('name', $event->getName());
         $statement->bindValue('emitter_class', $event->getEmitterClass());
         $statement->bindValue('emitter_id', $event->getEmitterId());
@@ -31,19 +35,18 @@ final class Rdbm implements Store
 
     public function findBy($class, $id)
     {
-        $statement = $this->pdo->prepare('SELECT name, emitter_class, emitter_id, attributes FROM event WHERE emitter_class = :class AND emitter_id = :id');
+        $statement = $this->pdo->prepare('SELECT event_class, name, emitter_class, emitter_id, attributes
+            FROM event
+            WHERE emitter_class = :class AND emitter_id = :id
+        ;');
         $statement->bindValue('class', $class);
         $statement->bindValue('id', $id);
         $statement->execute();
 
         $hasFetched = false; // TODO argghh!
-        while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        while( false !== $event = $statement->fetch(PDO::FETCH_CLASS | PDO::FETCH_CLASSTYPE | PDO::FETCH_PROPS_LATE)) {
+            die(var_dump($event));
             $hasFetched = true;
-            // TODO allow other event classes
-            $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(json_decode($row['attributes'], true))->getAttributes());
-            $event->setEmitterClass($row['emitter_class']);
-            $event->setEmitterId($row['emitter_id']);
-
             yield $event;
         }
 
@@ -52,3 +55,4 @@ final class Rdbm implements Store
         }
     }
 }
+

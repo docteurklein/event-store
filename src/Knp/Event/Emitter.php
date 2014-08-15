@@ -2,7 +2,7 @@
 
 namespace Knp\Event;
 
-interface Provider
+interface Emitter extends Emitter\HasIdentity, Emitter\CanBeReplayed
 {
     /**
      * empties and returns the list of events raised internally
@@ -10,6 +10,4 @@ interface Provider
      * @return array
      **/
     public function popEvents();
-
-    public function getId();
 }

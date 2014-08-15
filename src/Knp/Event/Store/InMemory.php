@@ -15,13 +15,13 @@ final class InMemory implements Store
         $this->events[] = $event;
     }
 
-    public function byProvider($class, $id)
+    public function byEmitter($class, $id)
     {
         if (empty($this->events)) {
             throw new NoResult;
         }
         foreach ($this->events as $event) {
-            if ($event->getProviderClass() === $class && $event->getProviderId() === $id) {
+            if ($event->getEmitterClass() === $class && $event->getEmitterId() === $id) {
                 yield $event;
             }
         }

@@ -8,5 +8,5 @@ interface Store
 {
     public function add(Event $event);
 
-    public function byProvider($class, $id);
+    public function findBy($class, $id);
 }

@@ -9,7 +9,7 @@ require __DIR__.'/../vendor/autoload.php';
 
 use JMS\Serializer\Annotation as Serialize;
 
-class Product implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provider, \Serializable
+class Product implements \Knp\Event\Emitter, \Serializable
 {
     use \Knp\Event\Popper;
 
@@ -163,7 +163,7 @@ class Price
     }
 }
 
-class Cart implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provider
+class Cart implements \Knp\Event\Emitter
 {
     use \Knp\Event\Popper;
 
@@ -212,10 +212,8 @@ class Cart implements \Knp\Event\AggregateRoot\CanBeReplayed, \Knp\Event\Provide
     }
 }
 
-class Item implements \Knp\Event\Provider
+class Item
 {
-    use \Knp\Event\Popper;
-
     /**
      * @Serialize\Type("Rhumsaa\Uuid\Uuid")
      **/
@@ -242,13 +240,6 @@ class Item implements \Knp\Event\Provider
         $this->productId = $productId;
         $this->quantity = $quantity;
         $this->createdAt = $createdAt ?: new \DateTime;
-
-        $this->events[] = new \Knp\Event\Event\Generic('ItemCreated', [
-            'id' => $id,
-            'productId' => $productId,
-            'quantity' => $quantity,
-            'createdAt' => $this->createdAt,
-        ]);
     }
 
     public function __toString()
@@ -301,14 +292,21 @@ class RDBMProjector implements \Doctrine\Common\EventSubscriber
     public function ProductRenamed(\Knp\Event\Event $event)
     {
         $statement = $this->pdo->prepare('UPDATE product SET name = :name WHERE id = :id;');
-        $statement->bindValue('id', $event->getProviderId());
+        $statement->bindValue('id', $event->getEmitterId());
         $statement->bindValue('name', $event->name);
         $statement->execute();
     }
 }
 
 $evm = new \Doctrine\Common\EventManager;
-$evm->addEventSubscriber(new RDBMProjector(new \PDO('pgsql:dbname=event_store')));
+$evm->addEventSubscriber(
+    new RDBMProjector(
+        new \PDO('pgsql:dbname=event_store_projection', null, null, [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_EMULATE_PREPARES => 0,
+        ])
+    )
+);
 
 $serializer = new \Knp\Event\Serializer\Jms(
     (new \JMS\Serializer\SerializerBuilder)
@@ -343,8 +341,14 @@ $serializer = new \Knp\Event\Serializer\Jms(
 $repository = new \Knp\Event\Repository(
     new \Knp\Event\Store\Dispatcher(
         //new \Knp\Event\Store\InMemory,
-        //new \Knp\Event\Store\Rdbm(new \PDO('pgsql:dbname=event_store'), $serializer),
-        new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
+        new \Knp\Event\Store\Rdbm(
+            new \PDO('pgsql:dbname=event_store', null, null, [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_EMULATE_PREPARES => 0,
+            ]),
+            $serializer
+        ),
+        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
         $evm
     ),
     new \Knp\Event\Player\Aggregate(

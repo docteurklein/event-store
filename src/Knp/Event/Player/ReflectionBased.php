@@ -4,7 +4,7 @@ namespace Knp\Event\Player;
 
 use Knp\Event\Player;
 use Knp\Event\Event;
-use Knp\Event\AggregateRoot\CanBeReplayed;
+use Knp\Event\Emitter\CanBeReplayed;
 use ReflectionClass;
 use InvalidArgumentException;
 use LogicException;

@@ -8,8 +8,8 @@ interface Event
 {
     public function getName();
 
-    public function getProviderClass();
-    public function getProviderId();
+    public function getEmitterClass();
+    public function getEmitterId();
 
     public function getAttributes();
 }

@@ -23,9 +23,9 @@ final class Dispatcher implements Store
         $this->dispatcher->dispatchEvent($event->getName(), $event);
     }
 
-    public function byProvider($class, $id)
+    public function findBy($class, $id)
     {
-        return $this->store->byProvider($class, $id);
+        return $this->store->findBy($class, $id);
     }
 
 }

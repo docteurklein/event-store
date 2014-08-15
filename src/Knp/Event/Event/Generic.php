@@ -3,7 +3,7 @@
 namespace Knp\Event\Event;
 
 use Knp\Event\Event;
-use Knp\Event\Provider;
+use Knp\Event\Emitter\HasIdentity;
 use Doctrine\Common\EventArgs;
 use JMS\Serializer\Annotation as Serialize;
 
@@ -22,12 +22,12 @@ final class Generic extends EventArgs implements Event, \Serializable
     /**
      * @Serialize\Type("string")
      **/
-    private $providerClass;
+    private $emitterClass;
 
     /**
      * @Serialize\Type("Rhumsaa\Uuid\Uuid")
      **/
-    private $providerId;
+    private $emitterId;
 
     public function __construct($name, array $attributes)
     {
@@ -35,30 +35,30 @@ final class Generic extends EventArgs implements Event, \Serializable
         $this->attributes = $attributes;
     }
 
-    public function setProvider(Provider $provider)
+    public function setEmitter(HasIdentity $emitter)
     {
-        $this->providerClass = get_class($provider);
-        $this->providerId = $provider->getId();
+        $this->emitterClass = get_class($emitter);
+        $this->emitterId = $emitter->getId();
     }
 
-    public function setProviderClass($class)
+    public function setEmitterClass($class)
     {
-        $this->providerClass = $class;
+        $this->emitterClass = $class;
     }
 
-    public function setProviderId($id)
+    public function setEmitterId($id)
     {
-        $this->providerId = $id;
+        $this->emitterId = $id;
     }
 
-    public function getProviderClass()
+    public function getEmitterClass()
     {
-        return $this->providerClass;
+        return $this->emitterClass;
     }
 
-    public function getProviderId()
+    public function getEmitterId()
     {
-        return $this->providerId;
+        return $this->emitterId;
     }
 
     public function getName()
@@ -81,8 +81,8 @@ final class Generic extends EventArgs implements Event, \Serializable
         return serialize([
             $this->name,
             $this->attributes,
-            $this->providerClass,
-            $this->providerId,
+            $this->emitterClass,
+            $this->emitterId,
         ]);
     }
 
@@ -91,8 +91,8 @@ final class Generic extends EventArgs implements Event, \Serializable
         list(
             $this->name,
             $this->attributes,
-            $this->providerClass,
-            $this->providerId,
+            $this->emitterClass,
+            $this->emitterId,
         ) = unserialize($data);
     }
 }

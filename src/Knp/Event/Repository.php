@@ -18,11 +18,11 @@ final class Repository
         $this->player = $player;
     }
 
-    public function save(Provider $object)
+    public function save(Emitter $object)
     {
         $events = $object->popEvents();
         foreach ($events as $event) {
-            $event->setProvider($object);
+            $event->setEmitter($object);
             $this->store->add($event);
         }
     }
@@ -30,7 +30,7 @@ final class Repository
     public function find($class, $id)
     {
         try {
-            $events = $this->store->byProvider($class, $id);
+            $events = $this->store->findBy($class, $id);
             return new PhpOption\Some($this->player->replay($events, $class));
         }
         catch(NoResult $e) {

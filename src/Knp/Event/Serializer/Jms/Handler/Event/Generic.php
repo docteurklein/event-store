@@ -33,8 +33,8 @@ final class Generic implements SubscribingHandlerInterface
     {
         $data = [
             'name' => $event->getName(),
-            'provider_class' => $event->getProviderClass(),
-            'provider_id' => $visitor->getNavigator()->accept($event->getProviderId(), null, $context),
+            'emitter_class' => $event->getEmitterClass(),
+            'emitter_id' => $visitor->getNavigator()->accept($event->getEmitterId(), null, $context),
             'attributes' => array_map($closure = function($attribute) use(&$closure, $visitor, $context) {
                 if (is_array($attribute)) {
                     return [
@@ -62,8 +62,8 @@ final class Generic implements SubscribingHandlerInterface
             return $visitor->getNavigator()->accept($attribute['__value__'], [ 'name' => $attribute['__type__'], 'params' =>[] ], $context);
         }, $data['attributes']);
         $event = new Event\Generic($data['name'], $attributes);
-        $event->setProviderClass($data['provider_class']);
-        $event->setProviderId($visitor->getNavigator()->accept($data['provider_id'], ['name' => 'Rhumsaa\Uuid\Uuid', 'params' =>[] ], $context));
+        $event->setEmitterClass($data['emitter_class']);
+        $event->setEmitterId($visitor->getNavigator()->accept($data['emitter_id'], ['name' => 'Rhumsaa\Uuid\Uuid', 'params' =>[] ], $context));
 
         return $event;
     }

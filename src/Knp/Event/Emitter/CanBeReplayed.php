@@ -1,6 +1,6 @@
 <?php
 
-namespace Knp\Event\AggregateRoot;
+namespace Knp\Event\Emitter;
 
 interface CanBeReplayed
 {
