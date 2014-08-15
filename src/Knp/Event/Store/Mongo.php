@@ -21,41 +21,29 @@ final class Mongo implements Store
         $this->serializer = $serializer;
     }
 
-    public function add(Event $event)
+    public function addSet(Event\Set $events)
     {
-        $this->events->selectCollection($event->getEmitterClass())->insert(
-            $this->serializer->serialize($event)
+        $this->events->selectCollection(get_class($events->getEmitter()))->batchInsert(
+            array_map(function($event) { return $this->serializer->serialize($event); }, $events->all())
         );
     }
 
     public function findBy($class, $id)
     {
-        $documents = $this->events->selectCollection($class)->find([
+        $events = $this->events->selectCollection($class)->find([
             'emitter_id' => (string)$id,
         ]);
-        if (0 === $documents->count()) {
+        if (0 === $events->count()) {
             throw new NoResult;
         }
 
-        return new CursorIterator($documents, $this->serializer);
-    }
-}
-
-/**
- * TODO tmp
- * see https://jira.mongodb.org/browse/PHP-820
- * see https://jira.mongodb.org/browse/PHP-977
- **/
-final class CursorIterator extends \IteratorIterator
-{
-    public function __construct(\Traversable $t, $serializer)
-    {
-        parent::__construct($t);
-        $this->serializer = $serializer;
+        return $this->iterate($events);
     }
 
-    public function current()
+    private function iterate(\MongoCursor $events)
     {
-        return $this->serializer->unserialize(parent::current());
+        foreach ($events as $event) {
+            yield $this->serializer->unserialize($event);
+        }
     }
 }

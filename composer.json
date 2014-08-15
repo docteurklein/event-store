@@ -16,7 +16,8 @@
     "require-dev": {
         "phpspec/phpspec": "~2.0.0",
         "rhumsaa/uuid": "~2.7.1",
-        "symfony/debug": "~2.5"
+        "symfony/debug": "~2.5",
+        "doctrine/orm": "~2.4"
     },
     "autoload": {
         "psr-0": {

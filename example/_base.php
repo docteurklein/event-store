@@ -40,12 +40,12 @@ class Product implements \Knp\Event\Emitter, \Serializable
         $this->attributes = $attributes;
         $this->createdAt = $createdAt ?: new \DateTime;
 
-        $this->events[] = new \Knp\Event\Event\Generic('ProductCreated', [
+        $this->emit(new \Knp\Event\Event\Generic('ProductCreated', [
             'id' => $this->id,
             'name' => $name,
             'attributes' => $attributes,
             'createdAt' => $this->createdAt,
-        ]);
+        ]));
     }
 
     public function __toString()
@@ -66,17 +66,17 @@ class Product implements \Knp\Event\Emitter, \Serializable
     public function rename($name)
     {
         $this->name = $name;
-        $this->events[] = new \Knp\Event\Event\Generic('ProductRenamed', [
+        $this->emit(new \Knp\Event\Event\Generic('ProductRenamed', [
             'name' => $name,
-        ]);
+        ]));
     }
 
     public function addAttribute(Attribute $attribute)
     {
         $this->attributes[] = $attribute;
-        $this->events[] = new \Knp\Event\Event\Generic('AttributeAdded', [
+        $this->emit(new \Knp\Event\Event\Generic('AttributeAdded', [
             'attribute' => $attribute,
-        ]);
+        ]));
     }
 
     public function getAttribute($name)
@@ -178,11 +178,11 @@ class Cart implements \Knp\Event\Emitter
         $this->items = $items;
         $this->createdAt = $createdAt ?: new \DateTime;
 
-        $this->events[] = new \Knp\Event\Event\Generic('CartCreated', [
+        $this->emit(new \Knp\Event\Event\Generic('CartCreated', [
             'id' => $this->id,
             'items' => $items,
             'createdAt' => $this->createdAt,
-        ]);
+        ]));
     }
 
     public function __toString()
@@ -206,9 +206,9 @@ class Cart implements \Knp\Event\Emitter
     public function addItem(Item $item)
     {
         $this->items[] = $item;
-        $this->events[] = new \Knp\Event\Event\Generic('ItemAdded', [
+        $this->emit(new \Knp\Event\Event\Generic('ItemAdded', [
             'item' => $item,
-        ]);
+        ]));
     }
 }
 

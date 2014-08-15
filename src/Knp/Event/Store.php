@@ -6,7 +6,7 @@ use Knp\Event\Event;
 
 interface Store
 {
-    public function add(Event $event);
+    public function addSet(Event\Set $events);
 
     public function findBy($class, $id);
 }

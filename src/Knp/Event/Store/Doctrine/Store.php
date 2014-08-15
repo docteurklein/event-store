@@ -1,21 +1,21 @@
 <?php
 
-namespace Knp\Event\Store;
+namespace Knp\Event\Store\Doctrine;
 
-use Knp\Event\Store;
+use Knp\Event\Store as Base;
 use Knp\Event\Event;
-use \PDO;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
+use Doctrine\DBAL\Connection;
 
-final class PDOBased implements Store
+final class Store implements Base
 {
-    private $pdo;
+    private $connection;
     private $serializer;
 
-    public function __construct(\PDO $pdo, Serializer $serializer)
+    public function __construct(Connection $connection, Serializer $serializer)
     {
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->serializer = $serializer;
     }
 

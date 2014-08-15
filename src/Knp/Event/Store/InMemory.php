@@ -10,20 +10,25 @@ final class InMemory implements Store
 {
     private $events = [];
 
-    public function add(Event $event)
+    public function addSet(Event\Set $events)
     {
-        $this->events[] = $event;
+        if (isset($this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()])) {
+            return $this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()] = array_merge(
+                $this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()],
+                $events->all()
+            );
+        }
+
+        $this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()] = $events->all();
     }
 
-    public function byEmitter($class, $id)
+    public function findBy($class, $id)
     {
-        if (empty($this->events)) {
+        if (empty($this->events[$class][$id])) {
             throw new NoResult;
         }
-        foreach ($this->events as $event) {
-            if ($event->getEmitterClass() === $class && $event->getEmitterId() === $id) {
-                yield $event;
-            }
+        foreach ($this->events[$class][$id] as $event) {
+            yield $event;
         }
     }
 

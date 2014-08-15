@@ -17,10 +17,13 @@ final class Dispatcher implements Store
         $this->dispatcher = $dispatcher;
     }
 
-    public function add(Event $event)
+    public function addSet(Event\Set $events)
     {
-        $this->store->add($event);
-        $this->dispatcher->dispatchEvent($event->getName(), $event);
+        $this->store->addSet($events);
+
+        foreach ($events as $event) { // TODO is this reliable ?
+            $this->dispatcher->dispatchEvent($event->getName(), $event);
+        }
     }
 
     public function findBy($class, $id)

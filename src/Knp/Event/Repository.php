@@ -21,10 +21,7 @@ final class Repository
     public function save(Emitter $object)
     {
         $events = $object->popEvents();
-        foreach ($events as $event) {
-            $event->setEmitter($object);
-            $this->store->add($event);
-        }
+        $this->store->addSet($events);
     }
 
     public function find($class, $id)
