@@ -8,6 +8,7 @@ interface Event
 {
     public function getName();
 
+    public function setEmitter(HasIdentity $emitter);
     public function getEmitterClass();
     public function getEmitterId();
 
