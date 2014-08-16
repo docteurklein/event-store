@@ -27,9 +27,14 @@ final class InMemory implements Store
         if (empty($this->events[$class][$id])) {
             throw new NoResult;
         }
+
+        return $this->iterate($class, $id);
+    }
+
+    private function iterate($class, $id)
+    {
         foreach ($this->events[$class][$id] as $event) {
             yield $event;
         }
     }
-
 }

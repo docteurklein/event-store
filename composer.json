@@ -14,7 +14,8 @@
         "jms/serializer": "~0.16.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "~2.0.0",
+        "phpspec/phpspec": "~2.0@dev",
+        "docteurklein/funk-spec": "*@dev",
         "rhumsaa/uuid": "~2.7.1",
         "symfony/debug": "~2.5",
         "doctrine/orm": "~2.4"
