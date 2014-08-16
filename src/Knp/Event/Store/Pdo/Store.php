@@ -1,6 +1,6 @@
 <?php
 
-namespace Knp\Event\Store;
+namespace Knp\Event\Store\Pdo;
 
 use Knp\Event\Store as Base;
 use Knp\Event\Event;
@@ -19,13 +19,9 @@ final class Store implements Base
         $this->serializer = $serializer;
     }
 
-    public function add(Event $event)
+    private function add(Event $event)
     {
-        $statement = $this->pdo->prepare('INSERT INTO event
-            (  event_class,  name,  emitter_class,  emitter_id,  attributes ) VALUES
-            ( :event_class, :name, :emitter_class, :emitter_id, :attributes )
-        ;');
-        $statement->bindValue('event_class', get_class($event));
+        $statement = $this->pdo->prepare('INSERT INTO event ( name, emitter_class, emitter_id, attributes ) VALUES ( :name, :emitter_class, :emitter_id, :attributes );');
         $statement->bindValue('name', $event->getName());
         $statement->bindValue('emitter_class', $event->getEmitterClass());
         $statement->bindValue('emitter_id', $event->getEmitterId());
@@ -33,20 +29,30 @@ final class Store implements Base
         $statement->execute();
     }
 
+    public function addSet(Event\Set $events)
+    {
+        $this->pdo->beginTransaction();
+        foreach ($events->all() as $event) {
+            $this->add($event);
+        }
+        $this->pdo->commit();
+    }
+
     public function findBy($class, $id)
     {
-        $statement = $this->pdo->prepare('SELECT event_class, name, emitter_class, emitter_id, attributes
-            FROM event
-            WHERE emitter_class = :class AND emitter_id = :id
-        ;');
+        $statement = $this->pdo->prepare('SELECT name, emitter_class, emitter_id, attributes FROM event WHERE emitter_class = :class AND emitter_id = :id');
         $statement->bindValue('class', $class);
         $statement->bindValue('id', $id);
         $statement->execute();
 
         $hasFetched = false; // TODO argghh!
-        while( false !== $event = $statement->fetch(PDO::FETCH_CLASS | PDO::FETCH_CLASSTYPE | PDO::FETCH_PROPS_LATE)) {
-            die(var_dump($event));
+        while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $hasFetched = true;
+            // TODO allow other event classes
+            $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(json_decode($row['attributes'], true))->getAttributes());
+            $event->setEmitterClass($row['emitter_class']);
+            $event->setEmitterId($row['emitter_id']);
+
             yield $event;
         }
 
