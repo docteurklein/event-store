@@ -21,7 +21,11 @@ final class Store implements Base
 
     private function add(Event $event)
     {
-        $statement = $this->pdo->prepare('INSERT INTO event ( name, emitter_class, emitter_id, attributes ) VALUES ( :name, :emitter_class, :emitter_id, :attributes );');
+        $statement = $this->pdo->prepare('INSERT INTO event
+            (  event_class,  name,  emitter_class,  emitter_id,  attributes ) VALUES
+            ( :event_class, :name, :emitter_class, :emitter_id, :attributes )
+        ;');
+        $statement->bindValue('event_class', get_class($event));
         $statement->bindValue('name', $event->getName());
         $statement->bindValue('emitter_class', $event->getEmitterClass());
         $statement->bindValue('emitter_id', $event->getEmitterId());
@@ -40,7 +44,10 @@ final class Store implements Base
 
     public function findBy($class, $id)
     {
-        $statement = $this->pdo->prepare('SELECT name, emitter_class, emitter_id, attributes FROM event WHERE emitter_class = :class AND emitter_id = :id');
+        $statement = $this->pdo->prepare('SELECT event_class, name, emitter_class, emitter_id, attributes
+            FROM event
+            WHERE emitter_class = :class AND emitter_id = :id
+        ;');
         $statement->bindValue('class', $class);
         $statement->bindValue('id', $id);
         $statement->execute();
