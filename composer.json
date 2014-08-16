@@ -22,7 +22,8 @@
     },
     "autoload": {
         "psr-0": {
-            "Knp\\Event": "src"
+            "Knp\\Event": "src",
+            "PhpSpec": "src"
         }
     }
 }

@@ -1,1 +1,5 @@
+
 formatter.name: pretty
+
+extensions:
+    - PhpSpec\Iterator\Extension

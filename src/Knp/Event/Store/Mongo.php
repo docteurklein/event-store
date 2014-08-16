@@ -9,21 +9,24 @@ use \MongoCollection;
 use \MongoBinData;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
+use Knp\Event\Reflection;
 
 final class Mongo implements Store
 {
     private $events;
     private $serializer;
+    private $reflection;
 
-    public function __construct(MongoDB $events, Serializer $serializer)
+    public function __construct(MongoDB $events, Serializer $serializer, Reflection $reflection = null)
     {
         $this->events = $events;
         $this->serializer = $serializer;
+        $this->reflection = $reflection ?: new Reflection;
     }
 
     public function addSet(Event\Set $events)
     {
-        $this->events->selectCollection(get_class($events->getEmitter()))->batchInsert(
+        $this->events->selectCollection($this->reflection->resolveClass($events->getEmitter()))->batchInsert(
             array_map(function($event) { return $this->serializer->serialize($event); }, $events->all())
         );
     }

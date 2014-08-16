@@ -5,21 +5,29 @@ namespace Knp\Event\Store;
 use Knp\Event\Store;
 use Knp\Event\Event;
 use Knp\Event\Exception\Store\NoResult;
+use Knp\Event\Reflection;
 
 final class InMemory implements Store
 {
+    private $reflection;
     private $events = [];
+
+    public function __construct(Reflection $reflection = null)
+    {
+        $this->reflection = $reflection ?: new Reflection;
+    }
 
     public function addSet(Event\Set $events)
     {
-        if (isset($this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()])) {
-            return $this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()] = array_merge(
-                $this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()],
-                $events->all()
-            );
+        $class = $this->reflection->resolveClass($events->getEmitter());
+        $id = (string)$events->getEmitter()->getId();
+
+        if (isset($this->events[$class][$id])) {
+            $this->events[$class][$id] = array_merge($this->events[$class][$id], $events->all());
+            return;
         }
 
-        $this->events[get_class($events->getEmitter())][(string)$events->getEmitter()->getId()] = $events->all();
+        $this->events[$class][$id] = $events->all();
     }
 
     public function findBy($class, $id)

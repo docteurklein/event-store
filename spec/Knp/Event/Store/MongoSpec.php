@@ -35,11 +35,12 @@ class MongoSpec extends ObjectBehavior
 
     function its_findBy_retrieves_emitter_specific_events($cursor, $event)
     {
-        $cursor->rewind()->willReturn();
-        $cursor->count()->willReturn(1);
-        $cursor->valid()->willReturn(true, false);
-        $cursor->next()->willReturn();
-        $cursor->current()->willReturn($event);
+        $cursor->iterates([$event]);
+        //$cursor->rewind()->willReturn();
+        //$cursor->count()->willReturn(1);
+        //$cursor->valid()->willReturn(true, false);
+        //$cursor->next()->willReturn();
+        //$cursor->current()->willReturn($event);
         $events = $this->findBy('A\Test\FQCN', 1);
         $events->shouldHaveType('Traversable');
     }
