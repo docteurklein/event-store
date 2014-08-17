@@ -29,7 +29,7 @@ final class Generic extends EventArgs implements Event, \Serializable
      **/
     private $emitterId;
 
-    public function __construct($name, array $attributes)
+    public function __construct($name, array $attributes = [])
     {
         $this->name = $name;
         $this->attributes = $attributes;

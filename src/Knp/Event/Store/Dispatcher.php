@@ -21,7 +21,7 @@ final class Dispatcher implements Store
     {
         $this->store->addSet($events);
 
-        foreach ($events as $event) { // TODO is this reliable ?
+        foreach ($events->all() as $event) {
             $this->dispatcher->dispatchEvent($event->getName(), $event);
         }
     }
