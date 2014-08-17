@@ -40,11 +40,13 @@ class Address implements \Knp\Event\Emitter
     private $number;
     private $city;
     private $country;
+    private $previousOne;
 
-    public function __construct($number, $street, $city, $country, $id = null)
+    public function __construct($number, $street, $city, $country, Address $previousOne = null)
     {
-        $this->emit(new \Knp\Event\Event\Generic('Created', $this->changeSet(function() use($number, $street, $city, $country, $id) {
-            $this->id      = $id ?: \Rhumsaa\Uuid\Uuid::uuid4();
+        $this->emit(new \Knp\Event\Event\Generic('Created', $c = $this->changeSet(function() use($number, $street, $city, $country, $previousOne) {
+            $this->previousOne = $previousOne;
+            $this->id      = \Rhumsaa\Uuid\Uuid::uuid4();
             $this->number  = $number;
             $this->street  = $street;
             $this->city    = $city;
@@ -60,7 +62,7 @@ class Address implements \Knp\Event\Emitter
     public function getReplayableSteps()
     {
         return [
-            'Created' => '__construct',
+            'Created' => 'restoreState',
             'Updated' => 'restoreState',
         ];
     }
@@ -112,6 +114,13 @@ class Address implements \Knp\Event\Emitter
             $this->country = $country;
         });
     }
+
+    public function setPreviousOne(Address $previousOne)
+    {
+        $this->track(function() use($previousOne) {
+            $this->previousOne = $previousOne;
+        });
+    }
 }
 
 $address = new Address(16, 'rue des erables', 'reguisheim', 'france');
@@ -121,5 +130,7 @@ $address->setStreet('lot. les erables');
 $address->setStreet('lot. les Erables');
 $repository->save($address);
 
-var_dump($repository->find('Knp\Event\Example\Crud\Address', (string)$address->getId())->get());
+$address->setPreviousOne(new Address(1, 'rue des champs', 'rexa', 'france'));
+$repository->save($address);
 
+var_dump($repository->find('Knp\Event\Example\Crud\Address', (string)$address->getId())->get());

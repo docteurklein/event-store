@@ -5,6 +5,7 @@ namespace Knp\Event\Crud;
 use Doctrine\DBAL\Connection;
 use Doctrine\Common\EventSubscriber;
 use Knp\Event\Event;
+use Knp\Event\Emitter;
 
 class Projection implements EventSubscriber
 {
@@ -29,13 +30,24 @@ class Projection implements EventSubscriber
     public function Created(Event $event)
     {
         $this->ensureSchema($this->getTableName($event->getEmitterClass()), $event->getAttributes());
-        $this->connection->insert($this->getTableName($event->getEmitterClass()), $event->getAttributes());
+        $this->connection->insert(
+            $this->getTableName($event->getEmitterClass()),
+            array_map(function($value) {
+                return $value instanceof Emitter ? $value->getId() : $value;
+            }, $event->getAttributes())
+        );
     }
 
     public function Updated(Event $event)
     {
         $this->ensureSchema($this->getTableName($event->getEmitterClass()), $event->getAttributes()['changeSet']);
-        $this->connection->update($this->getTableName($event->getEmitterClass()), $event->getAttributes()['changeSet'], ['id' => $event->getEmitterId()]);
+        $this->connection->update(
+            $this->getTableName($event->getEmitterClass()),
+            array_map(function($value) {
+                return $value instanceof Emitter ? $value->getId() : $value;
+            }, $event->getAttributes()['changeSet']),
+            ['id' => $event->getEmitterId()]
+        );
     }
 
     public function Deleted(Event $event)
@@ -45,9 +57,7 @@ class Projection implements EventSubscriber
 
     private function ensureSchema($name, array $columns = [])
     {
-        $sm = $this->connection->getSchemaManager();
-
-        $schema = $sm->createSchema();
+        $schema = $this->connection->getSchemaManager()->createSchema();
         if (!$schema->hasTable($name)) {
             $table = $schema->createTable($name);
         }
