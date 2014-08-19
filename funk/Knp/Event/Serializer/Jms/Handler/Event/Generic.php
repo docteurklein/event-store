@@ -16,7 +16,7 @@ class Generic implements \Funk\Spec
         ]);
         $event->setEmitter($emitter);
 
-        if ($serializer->unserialize($serializer->serialize($event)) == $event) {
+        if ($serializer->unserialize($serializer->serialize($event)) != $event) {
             throw new \Exception;
         }
     }
