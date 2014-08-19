@@ -1,7 +1,7 @@
 docteurklein/event-store
 ========================
 
-a php5.4+ event store.
+a php5.5+ event store.
 
 
 Install
