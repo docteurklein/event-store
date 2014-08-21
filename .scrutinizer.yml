@@ -1,0 +1,32 @@
+filter:
+    excluded_paths:
+        - spec
+        - funk
+        - vendor
+
+tools:
+    php_code_sniffer:
+        config:
+            standard: PSR2
+    php_cpd:
+        excluded_dirs:
+            - spec
+            - funk
+            - vendor
+    php_cs_fixer:
+        config:
+            level: all
+    php_hhvm: true
+    php_loc:
+        excluded_dirs:
+            - spec
+            - funk
+            - vendor
+    php_mess_detector: true
+    php_pdepend:
+        excluded_dirs:
+            - Resources/public
+            - vendor
+            - features/Context/fixtures
+    php_analyzer: true
+    sensiolabs_security_checker: true

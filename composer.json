@@ -25,5 +25,8 @@
             "Knp\\Event": "src",
             "PhpSpec": "src"
         }
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }
