@@ -26,7 +26,7 @@ trait Emitter
     {
         $changes = $this->changeSet($change);
         $attributes = ['changeSet' => array_merge($this->changeSet ? $this->changeSet->getAttributes()['changeSet'] : [], $changes)];
-        if ($key = array_search($this->changeSet, $this->events, true)) {
+        if (false !== $key = array_search($this->changeSet, $this->events, true)) {
             $this->events[$key] = $this->changeSet = new Event\Generic('Updated', $attributes);
         }
         else {
