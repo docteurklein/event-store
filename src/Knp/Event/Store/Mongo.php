@@ -21,7 +21,7 @@ final class Mongo implements Store
     {
         $this->events = $events;
         $this->serializer = $serializer;
-        $this->reflection = $reflection ?: new Reflection;
+        $this->reflection = $reflection ?: new Reflection(self::class);
     }
 
     public function addSet(Event\Set $events)

@@ -14,7 +14,7 @@ final class InMemory implements Store
 
     public function __construct(Reflection $reflection = null)
     {
-        $this->reflection = $reflection ?: new Reflection;
+        $this->reflection = $reflection ?: new Reflection(self::class);
     }
 
     public function addSet(Event\Set $events)

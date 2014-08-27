@@ -41,16 +41,6 @@ final class Generic extends EventArgs implements Event, \Serializable
         $this->emitterId = $emitter->getId();
     }
 
-    public function setEmitterClass($class)
-    {
-        $this->emitterClass = $class;
-    }
-
-    public function setEmitterId($id)
-    {
-        $this->emitterId = $id;
-    }
-
     public function getEmitterClass()
     {
         return $this->emitterClass;

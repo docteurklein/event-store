@@ -7,6 +7,7 @@ use Knp\Event\Event;
 use \PDO;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
+use Knp\Event\Reflection;
 
 final class Store implements Base
 {
@@ -52,13 +53,13 @@ final class Store implements Base
         $statement->bindValue('id', $id);
         $statement->execute();
 
-        $hasFetched = false; // TODO argghh!
+        $hasFetched = false;
         while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $hasFetched = true;
-            // TODO allow other event classes
             $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(json_decode($row['attributes'], true))->getAttributes());
-            $event->setEmitterClass($row['emitter_class']);
-            $event->setEmitterId($row['emitter_id']);
+            $reflect = new Reflection($event);
+            $reflect->setPropertyValue('emitterClass', $row['emitter_class']);
+            $reflect->setPropertyValue('emitterId', $row['emitter_id']);
 
             yield $event;
         }

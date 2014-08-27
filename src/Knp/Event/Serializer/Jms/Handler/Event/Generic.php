@@ -2,14 +2,22 @@
 
 namespace Knp\Event\Serializer\Jms\Handler\Event;
 
-use JMS\Serializer\Handler\SubscribingHandlerInterface;
-use JMS\Serializer\GraphNavigator;
 use Knp\Event\Serializer\Jms\Visitor;
 use Knp\Event\Event;
+use JMS\Serializer\Handler\SubscribingHandlerInterface;
+use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Context;
+use Knp\Event\Reflection;
 
 final class Generic implements SubscribingHandlerInterface
 {
+    private $reflect;
+
+    public function __construct(Reflection $reflect = null)
+    {
+        $this->reflect = $reflect ?: new Reflection('Knp\Event\Event\Generic');
+    }
+
     public static function getSubscribingMethods()
     {
         return [
@@ -62,8 +70,9 @@ final class Generic implements SubscribingHandlerInterface
             return $visitor->getNavigator()->accept($attribute['__value__'], [ 'name' => $attribute['__type__'], 'params' =>[] ], $context);
         }, $data['attributes']);
         $event = new Event\Generic($data['name'], $attributes);
-        $event->setEmitterClass($data['emitter_class']);
-        $event->setEmitterId($visitor->getNavigator()->accept($data['emitter_id'], ['name' => 'Rhumsaa\Uuid\Uuid', 'params' =>[] ], $context));
+        $reflect = new Reflection($event);
+        $reflect->setPropertyValue('emitterClass', $data['emitter_class']);
+        $reflect->setPropertyValue('emitterId', $visitor->getNavigator()->accept($data['emitter_id'], ['name' => 'Rhumsaa\Uuid\Uuid', 'params' =>[] ], $context));
 
         return $event;
     }
