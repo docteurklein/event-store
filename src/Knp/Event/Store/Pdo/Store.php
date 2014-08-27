@@ -2,14 +2,13 @@
 
 namespace Knp\Event\Store\Pdo;
 
-use Knp\Event\Store as Base;
-use Knp\Event\Event;
-use \PDO;
+use Knp\Event;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
+use \PDO;
 
-final class Store implements Base
+final class Store implements Event\Store
 {
     private $pdo;
     private $serializer;
@@ -20,7 +19,7 @@ final class Store implements Base
         $this->serializer = $serializer;
     }
 
-    private function add(Event $event)
+    private function add(Event\Event $event)
     {
         $statement = $this->pdo->prepare('INSERT INTO event
             (  event_class,  name,  emitter_class,  emitter_id,  attributes ) VALUES
@@ -34,7 +33,7 @@ final class Store implements Base
         $statement->execute();
     }
 
-    public function addSet(Event\Set $events)
+    public function addSet(Event\Event\Set $events)
     {
         $this->pdo->beginTransaction();
         foreach ($events->all() as $event) {
@@ -54,9 +53,9 @@ final class Store implements Base
         $statement->execute();
 
         $hasFetched = false;
-        while( false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        while (false !== $row = $statement->fetch(PDO::FETCH_ASSOC)) {
             $hasFetched = true;
-            $event = new \Knp\Event\Event\Generic($row['name'], $this->serializer->unserialize(json_decode($row['attributes'], true))->getAttributes());
+            $event = $this->serializer->unserialize(json_decode($row['attributes'], true), $row['event_class']);
             $reflect = new Reflection($event);
             $reflect->setPropertyValue('emitterClass', $row['emitter_class']);
             $reflect->setPropertyValue('emitterId', $row['emitter_id']);

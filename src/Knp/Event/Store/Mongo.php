@@ -27,7 +27,13 @@ final class Mongo implements Store
     public function addSet(Event\Set $events)
     {
         $this->events->selectCollection($this->reflection->resolveClass($events->getEmitter()))->batchInsert(
-            array_map(function($event) { return $this->serializer->serialize($event); }, $events->all())
+            array_map(function($event) {
+                return [
+                    'emitter_id' => (string)$event->getEmitterId(),
+                    'event_class' => $this->reflection->resolveClass($event),
+                    'event' => $this->serializer->serialize($event),
+                ];
+            }, $events->all())
         );
     }
 
@@ -46,7 +52,7 @@ final class Mongo implements Store
     private function iterate(\MongoCursor $events)
     {
         foreach ($events as $event) {
-            yield $this->serializer->unserialize($event);
+            yield $this->serializer->unserialize($event['event'], $event['event_class']);
         }
     }
 }
