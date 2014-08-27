@@ -1,12 +1,14 @@
 <?php
 
-namespace Knp\Event\Example\Crud;
+use example\Shop\Model\Product;
+use Knp\Event\Repository;
+use Knp\Event\Store;
 
 require __DIR__.'/../vendor/autoload.php';
 
 \Symfony\Component\Debug\Debug::enable();
 
-$evm = new \Doctrine\Common\EventManager;
+$dispatcher = new \Knp\Event\Dispatcher;
 $conn = \Doctrine\DBAL\DriverManager::getConnection([
         'dbname' => 'event_store_projection',
         'user' => 'florian',
@@ -16,18 +18,9 @@ $conn = \Doctrine\DBAL\DriverManager::getConnection([
     ]
 );
 
-$evm->addEventSubscriber(new \Knp\Event\Crud\Projection($conn));
-
-$repository = new \Knp\Event\Repository(
-    new \Knp\Event\Store\Dispatcher(
-        new \Knp\Event\Store\Logger(new \Knp\Event\Store\InMemory),
-        $evm
-    ),
-    new \Knp\Event\Player\Aggregate(
-        ['Knp\Event\Example\Shop\roduct' => new \Knp\Event\Player\ReflectionBased],
-        new \Knp\Event\Player\ReflectionBased
-    )
-);
+$dispatcher->add(new \Knp\Event\Crud\Projection($conn));
+$store = new Store\Logger(new Store\InMemory);
+$repository = (new Repository\Factory($store, $dispatcher))->create();
 
 class Address implements \Knp\Event\Emitter
 {
@@ -133,4 +126,4 @@ $repository->save($address);
 $address->setPreviousOne(new Address(1, 'rue des champs', 'rexa', 'france'));
 $repository->save($address);
 
-var_dump($repository->find('Knp\Event\Example\Crud\Address', (string)$address->getId())->get());
+var_dump($repository->find('Address', (string)$address->getId())->get());

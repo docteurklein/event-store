@@ -4,11 +4,13 @@ namespace Knp\Event\Event;
 
 use Knp\Event\Event;
 use Knp\Event\Emitter\HasIdentity;
-use Doctrine\Common\EventArgs;
 use JMS\Serializer\Annotation as Serialize;
+use Serializable;
 
-final class Generic extends EventArgs implements Event, \Serializable
+final class Generic implements Event, Serializable
 {
+    use HandlesEmitter;
+
     /**
      * @Serialize\Type("string")
      **/
@@ -19,36 +21,10 @@ final class Generic extends EventArgs implements Event, \Serializable
      **/
     private $attributes;
 
-    /**
-     * @Serialize\Type("string")
-     **/
-    private $emitterClass;
-
-    /**
-     * @Serialize\Type("Rhumsaa\Uuid\Uuid")
-     **/
-    private $emitterId;
-
     public function __construct($name, array $attributes = [])
     {
         $this->name = $name;
         $this->attributes = $attributes;
-    }
-
-    public function setEmitter(HasIdentity $emitter)
-    {
-        $this->emitterClass = get_class($emitter);
-        $this->emitterId = $emitter->getId();
-    }
-
-    public function getEmitterClass()
-    {
-        return $this->emitterClass;
-    }
-
-    public function getEmitterId()
-    {
-        return $this->emitterId;
     }
 
     public function getName()

@@ -3,11 +3,11 @@
 namespace Knp\Event\Crud;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\Common\EventSubscriber;
+use Knp\Event\Subscriber;
 use Knp\Event\Event;
 use Knp\Event\Emitter;
 
-class Projection implements EventSubscriber
+class Projection implements Subscriber
 {
     private $connection;
     private $tableNames;

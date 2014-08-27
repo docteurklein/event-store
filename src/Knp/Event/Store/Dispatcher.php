@@ -4,14 +4,14 @@ namespace Knp\Event\Store;
 
 use Knp\Event\Store;
 use Knp\Event\Event;
-use Doctrine\Common\EventManager;
+use Knp\Event\Dispatcher as EventDispatcher;
 
 final class Dispatcher implements Store
 {
     private $store;
     private $dispatcher;
 
-    public function __construct(Store $store, EventManager $dispatcher)
+    public function __construct(Store $store, EventDispatcher $dispatcher)
     {
         $this->store = $store;
         $this->dispatcher = $dispatcher;
@@ -22,7 +22,7 @@ final class Dispatcher implements Store
         $this->store->addSet($events);
 
         foreach ($events->all() as $event) {
-            $this->dispatcher->dispatchEvent($event->getName(), $event);
+            $this->dispatcher->dispatch($event);
         }
     }
 

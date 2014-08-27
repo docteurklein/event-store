@@ -14,16 +14,23 @@
         "jms/serializer": "~0.16.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "~2.0@dev",
+        "phpspec/phpspec": "*@dev",
         "docteurklein/funk-spec": "*@dev",
         "rhumsaa/uuid": "~2.7.1",
         "symfony/debug": "~2.5",
+        "bossa/phpspec2-expect": "*@dev",
         "doctrine/orm": "~2.4"
     },
     "autoload": {
         "psr-0": {
             "Knp\\Event": "src",
-            "PhpSpec": "src"
+            "PhpSpec": "src",
+            "TestWork\\PhpSpecExtension": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "example": ""
         }
     },
     "config": {

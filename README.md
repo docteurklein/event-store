@@ -22,6 +22,7 @@ Test
 ----
 
     bin/phpspec run
+    bin/funk funk
 
 
 Contribute

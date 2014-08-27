@@ -5,11 +5,12 @@ namespace Knp\Event\Example\Shop;
 require __DIR__.'/../vendor/autoload.php';
 
 \Symfony\Component\Debug\Debug::enable();
+\Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
 
-require '_model.php';
-$serializer = require '_serializer.php';
+//$serializer = new \Knp\Event\Serializer\AnyCallable('igbinary_serialize', 'igbinary_unserialize');
+$serializer = (new \Knp\Event\Serializer\Jms\Builder)->build();
 
-class RDBMProjector implements \Doctrine\Common\EventSubscriber
+class RDBMProjector implements \Knp\Event\Subscriber
 {
     private $pdo;
 
@@ -44,8 +45,8 @@ class RDBMProjector implements \Doctrine\Common\EventSubscriber
     }
 }
 
-$evm = new \Doctrine\Common\EventManager;
-$evm->addEventSubscriber(
+$dispatcher = new \Knp\Event\Dispatcher;
+$dispatcher->add(
     new RDBMProjector(
         new \PDO('pgsql:dbname=event_store_projection', null, null, [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
@@ -54,21 +55,11 @@ $evm->addEventSubscriber(
     )
 );
 
-$repository = new \Knp\Event\Repository(
-    new \Knp\Event\Store\Dispatcher(
-        //new \Knp\Event\Store\InMemory,
-        new \Knp\Event\Store\Pdo\Store(
-            new \PDO('pgsql:dbname=event_store', null, null, [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_EMULATE_PREPARES => 0,
-            ]),
-            $serializer
-        ),
-        //new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
-        $evm
-    ),
-    new \Knp\Event\Player\Aggregate(
-        ['Knp\Event\Example\Shop\roduct' => new \Knp\Event\Player\ReflectionBased],
-        new \Knp\Event\Player\ReflectionBased
-    )
+$store = new \Knp\Event\Store\Pdo\Store(
+    new \PDO('pgsql:dbname=event_store', null, null, [
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_EMULATE_PREPARES => 0,
+    ]),
+    $serializer
 );
+$repository = (new \Knp\Event\Repository\Factory($store, $dispatcher))->create();
