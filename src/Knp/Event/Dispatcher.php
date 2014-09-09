@@ -22,7 +22,7 @@ final class Dispatcher
             return;
         }
         foreach ($this->listeners[$event->getName()] as $listener) {
-            call_user_func_array($listener, $event);
+            call_user_func($listener, $event);
         }
     }
 }

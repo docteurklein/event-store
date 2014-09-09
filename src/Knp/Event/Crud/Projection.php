@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Knp\Event\Subscriber;
 use Knp\Event\Event;
 use Knp\Event\Emitter;
+use Doctrine\DBAL\Types\Type;
 
 final class Projection implements Subscriber
 {
@@ -21,31 +22,35 @@ final class Projection implements Subscriber
     public function getSubscribedEvents()
     {
         return [
-            'Created',
-            'Updated',
-            'Deleted',
+            'Created' => 'Created',
+            'Updated' => 'Updated',
+            'Deleted' => 'Deleted',
         ];
     }
 
     public function Created(Event $event)
     {
-        $this->ensureSchema($this->getTableName($event->getEmitterClass()), $event->getAttributes());
+        $attributes = array_map(function($value) {
+            return $value instanceof Emitter ? $value->getId() : $value;
+        }, $event->getAttributes());
+
+        $this->ensureSchema($this->getTableName($event->getEmitterClass()), $attributes);
         $this->connection->insert(
             $this->getTableName($event->getEmitterClass()),
-            array_map(function($value) {
-                return $value instanceof Emitter ? $value->getId() : $value;
-            }, $event->getAttributes())
+            $attributes
         );
     }
 
     public function Updated(Event $event)
     {
-        $this->ensureSchema($this->getTableName($event->getEmitterClass()), $event->getAttributes()['changeSet']);
+        $attributes = array_map(function($value) {
+            return $value instanceof Emitter ? $value->getId() : $value;
+        }, $event->getAttributes()['changeSet']);
+
+        $this->ensureSchema($this->getTableName($event->getEmitterClass()), $attributes);
         $this->connection->update(
             $this->getTableName($event->getEmitterClass()),
-            array_map(function($value) {
-                return $value instanceof Emitter ? $value->getId() : $value;
-            }, $event->getAttributes()['changeSet']),
+            $attributes,
             ['id' => $event->getEmitterId()]
         );
     }
@@ -59,12 +64,12 @@ final class Projection implements Subscriber
     {
         $schema = $this->connection->getSchemaManager()->createSchema();
         if (!$schema->hasTable($name)) {
-            $table = $schema->createTable($name);
+            $schema->createTable($name);
         }
         $table = $schema->getTable($name);
         foreach ($columns as $property => $value) {
             if (!$table->hasColumn($property)) {
-                $table->addColumn($property, 'text', ['notnull' => false]);
+                $table->addColumn($property, $this->getType($value), ['notnull' => false]);
             }
         }
 
@@ -79,5 +84,15 @@ final class Projection implements Subscriber
         }
 
         return str_replace('\\', '_', $class);
+    }
+
+    private function getType($value)
+    {
+        try {
+            return Type::getType(gettype($value))->getName();
+        }
+        catch (\Exception $e) {
+            return 'text';
+        }
     }
 }
