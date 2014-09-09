@@ -6,7 +6,7 @@ use PhpSpec\Wrapper\Collaborator as Base;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Promise\ReturnPromise;
 
-class Collaborator extends Base
+final class Collaborator extends Base
 {
     private $prophecy;
 

@@ -13,7 +13,7 @@ use ReflectionClass;
 use ReflectionException;
 use Prophecy\Prophet;
 
-class Maintainer implements MaintainerInterface
+final class Maintainer implements MaintainerInterface
 {
     private $unwrapper;
 

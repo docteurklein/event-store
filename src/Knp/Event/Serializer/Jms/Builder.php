@@ -13,7 +13,7 @@ use Rhumsaa\Uuid\Uuid;
 use DateTime;
 use Knp\Event\Serializer\Jms\Handler\Event\Generic;
 
-class Builder
+final class Builder
 {
     public function configure(SerializerBuilder $builder)
     {

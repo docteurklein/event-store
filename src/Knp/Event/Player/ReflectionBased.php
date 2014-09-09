@@ -7,6 +7,7 @@ use Knp\Event\Event;
 use Knp\Event\Emitter\CanBeReplayed;
 use ReflectionClass;
 use InvalidArgumentException;
+use BadMethodCallException;
 use LogicException;
 use Traversable;
 
@@ -29,6 +30,13 @@ final class ReflectionBased implements Player
                 $object = $reflect->newInstanceArgs($event->getAttributes());
                 continue;
             }
+            if ($method->isStatic()) {
+                $object = $method->invokeArgs(null, $event->getAttributes());
+                if (!$object instanceof $class) {
+                    throw new BadMethodCallException(sprintf('%s::%s is considered a static constructor and thus should return an instance', $class, $method->getName()));
+                }
+                continue;
+            }
             $method->invokeArgs($object, $event->getAttributes());
         }
         $object->popEvents();
@@ -47,6 +55,6 @@ final class ReflectionBased implements Player
             return $method;
         }
 
-        throw new LogicException(sprintf('"%s" has no corresponding method listed in (%s).', $event->getName(), implode(', ', $methods + [$method])));
+        throw new LogicException(sprintf('"%s" has no corresponding method in (%s).', $event->getName(), implode(', ', $methods + [$method])));
     }
 }

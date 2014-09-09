@@ -6,9 +6,9 @@ use PhpSpec\Extension\ExtensionInterface;
 use PhpSpec\ServiceContainer;
 use PhpSpec\Iterator\Maintainer;
 
-class Extension implements ExtensionInterface
+final class Extension implements ExtensionInterface
 {
-    public function load(ServiceContainer $container)
+    public function load(ServiceContainer $container, array $params = [])
     {
         $container->setShared('runner.maintainers.iterator', function ($c) {
             return new Maintainer($c->get('unwrapper'));

@@ -4,7 +4,7 @@ namespace Knp\Event\Event;
 
 use Knp\Event\Emitter;
 
-class Set
+final class Set
 {
     private $emitter;
     private $events;

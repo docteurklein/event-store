@@ -9,10 +9,6 @@ use Knp\Event\Event;
 
 class ReflectionBasedSpec extends ObjectBehavior
 {
-    function let()
-    {
-    }
-
     function it_is_a_player()
     {
         $this->shouldHaveType('Knp\Event\Player\ReflectionBased');
@@ -31,7 +27,6 @@ class ReflectionBasedSpec extends ObjectBehavior
 
         $emitter = $this->replay($events, 'spec\Knp\Event\Player\Replayable');
         $emitter->getId()->shouldEqual(10);
-
     }
 }
 

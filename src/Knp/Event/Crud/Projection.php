@@ -7,7 +7,7 @@ use Knp\Event\Subscriber;
 use Knp\Event\Event;
 use Knp\Event\Emitter;
 
-class Projection implements Subscriber
+final class Projection implements Subscriber
 {
     private $connection;
     private $tableNames;

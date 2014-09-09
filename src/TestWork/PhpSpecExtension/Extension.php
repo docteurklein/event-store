@@ -9,7 +9,7 @@ use Behat\Testwork\ServiceContainer\ExtensionManager;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class Extension implements ServiceContainer\Extension
+final class Extension implements ServiceContainer\Extension
 {
     public function getConfigKey()
     {
@@ -26,7 +26,6 @@ class Extension implements ServiceContainer\Extension
 
     public function process(ContainerBuilder $container)
     {
-
     }
 
     public function load(ContainerBuilder $container, array $config)

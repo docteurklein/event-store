@@ -6,7 +6,7 @@ use ReflectionObject;
 use ReflectionClass;
 use ReflectionProperty;
 
-class Reflection
+final class Reflection
 {
     private $subject;
     private $reflect;
