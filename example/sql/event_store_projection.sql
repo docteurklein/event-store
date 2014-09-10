@@ -40,8 +40,6 @@ CREATE TABLE product (
 );
 
 
-ALTER TABLE public.product OWNER TO florian;
-
 --
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
