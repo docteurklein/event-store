@@ -25,12 +25,10 @@ class MongoSpec extends ObjectBehavior
         $serializer->serialize(Argument::type('Knp\Event\Event'))->willReturn();
     }
 
-    function it_stores_events(Event\Set $events, $event, $emitter, $collection)
+    function it_stores_events($event, $emitter, $collection)
     {
         $collection->batchInsert(Argument::type('array'))->shouldBeCalled();
-        $events->getEmitter()->willReturn($emitter);
-        $events->all()->willReturn([$event]);
-        $this->addSet($events);
+        $this->addSet(new Event\Set($emitter->getWrappedObject(), [$event->getWrappedObject()]));
     }
 
     function its_findBy_retrieves_emitter_specific_events($cursor, $event)

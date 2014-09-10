@@ -11,12 +11,10 @@ use Knp\Event\Reflection;
 
 final class InMemorySpec extends ObjectBehavior
 {
-    public function let(Event\Set $events, Event $event, Emitter $emitter, Reflection $reflection)
+    public function let(Event $event, Emitter $emitter, Reflection $reflection)
     {
         $this->beConstructedWith($reflection);
         $reflection->resolveClass(Argument::any())->willReturn('A\Test\FQCN');
-        $events->all()->willReturn([$event]);
-        $events->getEmitter()->willReturn($emitter);
         $emitter->getId()->willReturn(1);
     }
 
@@ -25,14 +23,14 @@ final class InMemorySpec extends ObjectBehavior
         $this->shouldHaveType('Knp\Event\Store');
     }
 
-    function it_stores_events($events)
+    function it_stores_events($emitter, $event)
     {
-        $this->addSet($events);
+        $this->addSet(new Event\Set($emitter->getWrappedObject(), [$event->getWrappedObject()]));
     }
 
-    function its_findBy_retrieves_emitter_specific_events($events, $emitter)
+    function its_findBy_retrieves_emitter_specific_events($event, $emitter)
     {
-        $this->addSet($events);
+        $this->addSet(new Event\Set($emitter->getWrappedObject(), [$event->getWrappedObject()]));
         $this->findBy('A\Test\FQCN', 1)->shouldHaveType('Traversable'); // TODO find correct class name
     }
 
