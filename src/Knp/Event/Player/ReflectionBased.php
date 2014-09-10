@@ -13,6 +13,10 @@ use Traversable;
 
 final class ReflectionBased implements Player
 {
+    /**
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     **/
     public function replay(Traversable $events, $class)
     {
         $reflect = new ReflectionClass($class);
@@ -44,6 +48,9 @@ final class ReflectionBased implements Player
         return $object;
     }
 
+    /**
+     * @throws LogicException
+     **/
     private function getMethodName(CanBeReplayed $object, ReflectionClass $reflect, array $methods, Event $event)
     {
         if (isset($methods[$event->getName()])) {
