@@ -40,7 +40,7 @@ class DifferentEventClasses implements \Funk\Spec
         $product->name('no test');
         $repository->save($product);
         $re = $repository->find(Product::class, (string)$product->getId())->get();
-        expect($product)->toBeLike($re);
+        expect($product->getName())->toBeLike($re->getName());
     }
 }
 

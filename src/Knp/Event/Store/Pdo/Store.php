@@ -8,7 +8,7 @@ use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
 use \PDO;
 
-final class Store implements Event\Store
+final class Store implements Event\Store, Event\Store\IsVersioned
 {
     private $pdo;
     private $serializer;
@@ -66,6 +66,19 @@ final class Store implements Event\Store
         if (!$hasFetched) {
             throw new NoResult;
         }
+    }
+
+    public function getCurrentVersion($class, $id)
+    {
+        $statement = $this->pdo->prepare('SELECT COUNT(*)
+            FROM event
+            WHERE emitter_class = :class AND emitter_id = :id
+        ;');
+        $statement->bindValue('class', $class);
+        $statement->bindValue('id', $id);
+        $statement->execute();
+
+        return $statement->fetchColumn();
     }
 }
 

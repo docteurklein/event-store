@@ -4,8 +4,9 @@ namespace Knp\Event\Store;
 
 use Knp\Event\Store;
 use Knp\Event\Event;
+use Knp\Event\Emitter\HasIdentity;
 
-final class Logger implements Store
+final class Logger implements Store, Store\IsVersioned
 {
     private $store;
 
@@ -23,8 +24,14 @@ final class Logger implements Store
     public function findBy($class, $id)
     {
         $events = $this->store->findBy($class, $id);
-        var_dump(sprintf('found %s events for %s %s', '?', $class, $id));
+        $count = $this->getCurrentVersion($class, $id);
+        var_dump(sprintf('found %s events for %s %s', $count, $class, $id));
 
         return $events;
+    }
+
+    public function getCurrentVersion($class, $id)
+    {
+        return $this->store->getCurrentVersion($class, $id);
     }
 }

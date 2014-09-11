@@ -22,7 +22,7 @@ final class ReflectionBased implements Player
         $reflect = new ReflectionClass($class);
 
         if (!$reflect->implementsInterface(self::CAN_BE_REPLAYED)) {
-            throw new InvalidArgumentException(sprintf('"%s" must implement "%s"', $class, self::CAN_BE_REPLAYED));
+            throw new InvalidArgumentException(sprintf('"%s" must implement "%s".', $class, self::CAN_BE_REPLAYED));
         }
 
         $object = $reflect->newInstanceWithoutConstructor();
@@ -37,13 +37,12 @@ final class ReflectionBased implements Player
             if ($method->isStatic()) {
                 $object = $method->invokeArgs(null, $event->getAttributes());
                 if (!$object instanceof $class) {
-                    throw new BadMethodCallException(sprintf('%s::%s is considered a static constructor and thus should return an instance', $class, $method->getName()));
+                    throw new BadMethodCallException(sprintf('%s::%s is considered a static constructor and thus should return an instance.', $class, $method->getName()));
                 }
                 continue;
             }
             $method->invokeArgs($object, $event->getAttributes());
         }
-        $object->popEvents();
 
         return $object;
     }

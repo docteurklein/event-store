@@ -10,8 +10,9 @@ use \MongoBinData;
 use Knp\Event\Serializer;
 use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
+use Knp\Event\Emitter\HasIdentity;
 
-final class Mongo implements Store
+final class Mongo implements Store, Store\IsVersioned
 {
     private $events;
     private $serializer;
@@ -26,7 +27,8 @@ final class Mongo implements Store
 
     public function addSet(Event\Set $events)
     {
-        $this->events->selectCollection($this->reflection->resolveClass($events->getEmitter()))->batchInsert(
+        $class = $this->reflection->resolveClass($events->getEmitter());
+        $this->events->selectCollection($class)->batchInsert(
             array_map(function($event) {
                 return [
                     'emitter_id' => (string)$event->getEmitterId(),
@@ -54,5 +56,12 @@ final class Mongo implements Store
         foreach ($events as $event) {
             yield $this->serializer->unserialize($event['event'], $event['event_class']);
         }
+    }
+
+    public function getCurrentVersion($class, $id)
+    {
+        return $this->events->selectCollection($class)->count([
+            'emitter_id' => (string)$id,
+        ]);
     }
 }

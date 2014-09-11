@@ -6,8 +6,9 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
+use Knp\Event\Emitter\HasIdentity;
 
-final class InMemory implements Store
+final class InMemory implements Store, Store\IsVersioned
 {
     private $reflection;
     private $events = [];
@@ -44,5 +45,14 @@ final class InMemory implements Store
         foreach ($this->events[$class][$id] as $event) {
             yield $event;
         }
+    }
+
+    public function getCurrentVersion($class, $id)
+    {
+        if (empty($this->events[$class][$id])) {
+            return 0;
+        }
+
+        return count($this->events[$class][$id]);
     }
 }

@@ -55,11 +55,16 @@ $dispatcher->add(
     )
 );
 
-$store = new \Knp\Event\Store\Pdo\Store(
-    new \PDO('pgsql:dbname=event_store', null, null, [
-        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-        \PDO::ATTR_EMULATE_PREPARES => 0,
-    ]),
-    $serializer
-);
-$repository = (new \Knp\Event\Repository\Factory($store, $dispatcher))->create();
+//$store = new \Knp\Event\Store\Pdo\Store(
+//    new \PDO('pgsql:dbname=event_store', null, null, [
+//        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+//        \PDO::ATTR_EMULATE_PREPARES => 0,
+//    ]),
+//    $serializer
+//);
+
+//$store = new \Knp\Event\Store\InMemory;
+
+$store = new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer);
+
+$repository = (new \Knp\Event\Repository\Factory(new \Knp\Event\Store\Concurrency\Optimistic($store), $dispatcher))->create();

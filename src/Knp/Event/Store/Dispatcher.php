@@ -5,8 +5,9 @@ namespace Knp\Event\Store;
 use Knp\Event\Store;
 use Knp\Event\Event;
 use Knp\Event\Dispatcher as EventDispatcher;
+use Knp\Event\Emitter\HasIdentity;
 
-final class Dispatcher implements Store
+final class Dispatcher implements Store, Store\IsVersioned
 {
     private $store;
     private $dispatcher;
@@ -31,4 +32,8 @@ final class Dispatcher implements Store
         return $this->store->findBy($class, $id);
     }
 
+    public function getCurrentVersion($class, $id)
+    {
+        return $this->store->getCurrentVersion($class, $id);
+    }
 }
