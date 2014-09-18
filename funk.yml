@@ -3,5 +3,13 @@ default:
         'funk': '%paths.base%'
         'example': '%paths.base%'
 
+    suites:
+        memory: ~
+        pdo:
+            dbname: event_store
+        mongo:
+            dbname: event
+
     extensions:
         TestWork\PhpSpecExtension\Extension: ~
+        funk\Initializer\Extension: ~

@@ -24,22 +24,19 @@ class Optimistic implements Store, Store\IsVersioned
         $class = (new Reflection($emitter))->resolveClass($emitter);
         $id = (string)$emitter->getId();
 
-        $currentVersion   = max(1, $this->store->getCurrentVersion($class, $id));
-        $expectedVersion = $this->getExpectedVersion($class, $id);
-        if ($currentVersion !== $expectedVersion) {
-            throw new Concurrency\Optimistic\Conflict(sprintf('%s#%s is at version %d, but expected %d.', $class, $emitter->getId(), $currentVersion, $expectedVersion));
-        }
+        $this->assertSameVersion($emitter, $class, $id);
 
         $this->store->addSet($events);
-        $this->versions[$class][(string)$id][] = $this->store->getCurrentVersion($class, $id);
+        $this->resetExpectedVersion($class, $id);
     }
 
     public function findBy($class, $id)
     {
         $currentVersion = max(1, $this->store->getCurrentVersion($class, $id));
-        $this->versions[$class][(string)$id][] = $currentVersion;
+        $emitter = $this->store->findBy($class, $id);
+        $this->resetExpectedVersion($class, $id);
 
-        return $this->store->findBy($class, $id);
+        return $emitter;
     }
 
     public function getCurrentVersion($class, $id)
@@ -47,12 +44,28 @@ class Optimistic implements Store, Store\IsVersioned
         return $this->store->getCurrentVersion($class, $id);
     }
 
-    private function getExpectedVersion($class, $id)
+    private function assertSameVersion(HasIdentity $emitter, $class, $id)
+    {
+        $currentVersion  = max(1, $this->store->getCurrentVersion($class, $id));
+        $expectedVersions = $this->getExpectedVersions($class, $id);
+        foreach ($expectedVersions as $expectedVersion) {
+            if ($currentVersion !== $expectedVersion) {
+                throw new Concurrency\Optimistic\Conflict(sprintf('%s#%s is at version %d, but expected %d.', $class, $emitter->getId(), $currentVersion, $expectedVersion));
+            }
+        }
+    }
+
+    private function getExpectedVersions($class, $id)
     {
         if (!isset($this->versions[$class][$id])) {
-            return 1;
+            return [1];
         }
 
-        return max($this->versions[$class][$id]);
+        return $this->versions[$class][$id];
+    }
+
+    private function resetExpectedVersion($class, $id)
+    {
+        $this->versions[$class][(string)$id][] = $this->store->getCurrentVersion($class, $id);
     }
 }

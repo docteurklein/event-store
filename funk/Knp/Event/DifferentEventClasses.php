@@ -12,29 +12,16 @@ use JMS\Serializer\Annotation as Serialize;
 
 class DifferentEventClasses implements \Funk\Spec
 {
-    function it_handles_different_event_classes()
-    {
-        $serializer = (new \Knp\Event\Serializer\Jms\Builder)->build();
-        $stores = [
-            new \Knp\Event\Store\InMemory,
-            new \Knp\Event\Store\Pdo\Store(
-                new \PDO('pgsql:dbname=event_store', null, null, [
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                    \PDO::ATTR_EMULATE_PREPARES => 0,
-                ]),
-                $serializer
-            ),
-            new \Knp\Event\Store\Mongo((new \MongoClient)->selectDB('event'), $serializer),
-        ];
+    private $store;
 
-        foreach ($stores as $store) {
-            $this->test($store);
-        }
+    public function __construct(Store $store)
+    {
+        $this->store = $store;
     }
 
-    private function test(Store $store)
+    function it_handles_different_event_classes()
     {
-        $repository = (new Repository\Factory($store))->create();
+        $repository = (new Repository\Factory($this->store))->create();
         $product = new Product;
         $product->name('test');
         $product->name('no test');

@@ -29,6 +29,7 @@
     "autoload-dev": {
         "psr-0": {
             "example": "",
+            "funk": "",
             "PhpSpec": "src",
             "TestWork\\PhpSpecExtension": "src"
         }
