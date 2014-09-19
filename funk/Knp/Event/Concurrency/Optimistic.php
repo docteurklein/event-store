@@ -2,10 +2,11 @@
 
 namespace funk\Knp\Event\Concurrency;
 
-use Knp\Event\Store;
 use example\Shop\Model\Product;
+use Knp\Event\Store;
 use Knp\Event\Exception\Concurrency\Optimistic\Conflict;
 use Knp\Event\Repository;
+use Knp\Event\Store\Concurrency\Optimistic\VersionTransporter;
 
 class Optimistic implements \Funk\Spec
 {
@@ -18,37 +19,25 @@ class Optimistic implements \Funk\Spec
 
     function it_allows_to_store_aggregates_at_same_verison()
     {
-        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store)))->create();
+        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store, new VersionTransporter\Http(1))))->create();
 
         $repository->save($product = (new Product(null, 'test')));
-        $fetch1 = $repository->find(Product::class, (string)$product->getId())->get();
-        $fetch2 = $repository->find(Product::class, (string)$product->getId())->get();
-        $fetch2->rename('change 2');
-        $repository->save($fetch2);
-        $fetch2->rename('change 1');
-        try {
-            $repository->save($fetch2);
-        } catch (Conflict $e) {
-            throw new \LogicException('No Conflict should have been detected.', null, $e);
-        }
+        $fetch = $repository->find(Product::class, (string)$product->getId())->get();
+        expect($repository)->toNotThrow(Conflict::class)->during('save', [$fetch]);
     }
 
     function it_refuses_to_store_superseeded_versions()
     {
-        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store)))->create();
+        $directRepo = (new Repository\Factory($this->store))->create();
+        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store, new VersionTransporter\Http(1))))->create();
 
-        $repository->save($product = (new Product(null, 'test')));
-        $fetch1 = $repository->find(Product::class, (string)$product->getId())->get();
-        $fetch2 = $repository->find(Product::class, (string)$product->getId())->get();
-        $fetch1->rename('change 1');
-        $fetch2->rename('change 2');
-        $repository->save($fetch1);
-        try {
-            $repository->save($fetch2);
-        } catch (Conflict $e) {
-            return;
-        }
+        $product = new Product(null, 'test');
+        $product->rename('1');
+        $product->rename('2');
+        $directRepo->save($product);
 
-        throw new \LogicException('Conflict should have been detected.');
+        $fetch = $repository->find(Product::class, (string)$product->getId())->get();
+        $fetch->rename('change 1');
+        expect($repository)->toThrow(Conflict::class)->during('save', [$fetch]);
     }
 }

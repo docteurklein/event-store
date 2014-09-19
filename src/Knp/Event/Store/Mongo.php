@@ -12,7 +12,7 @@ use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
 use Knp\Event\Emitter\HasIdentity;
 
-final class Mongo implements Store, Store\IsVersioned
+final class Mongo implements Store\IsVersioned
 {
     private $events;
     private $serializer;

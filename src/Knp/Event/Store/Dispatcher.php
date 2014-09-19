@@ -7,7 +7,7 @@ use Knp\Event\Event;
 use Knp\Event\Dispatcher as EventDispatcher;
 use Knp\Event\Emitter\HasIdentity;
 
-final class Dispatcher implements Store, Store\IsVersioned
+final class Dispatcher implements Store\IsVersioned
 {
     private $store;
     private $dispatcher;

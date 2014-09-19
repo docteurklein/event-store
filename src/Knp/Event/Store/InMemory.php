@@ -8,7 +8,7 @@ use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
 use Knp\Event\Emitter\HasIdentity;
 
-final class InMemory implements Store, Store\IsVersioned
+final class InMemory implements Store\IsVersioned
 {
     private $reflection;
     private $events = [];

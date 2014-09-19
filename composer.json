@@ -9,11 +9,13 @@
         }
     ],
     "require": {
-        "php": ">=5.5",
-        "doctrine/common": "~2.4",
-        "jms/serializer": "~0.16.0"
+        "php": ">=5.5"
     },
     "require-dev": {
+        "ext-pdo-pgsql": "*",
+        "ext-mongo": "*",
+        "jms/serializer": "~0.16",
+        "doctrine/common": "~2.4",
         "doctrine/dbal": "~2.4",
         "phpspec/phpspec": "2.*@dev",
         "docteurklein/funk-spec": "*@dev",

@@ -8,7 +8,7 @@ use Knp\Event\Exception\Store\NoResult;
 use Knp\Event\Reflection;
 use \PDO;
 
-final class Store implements Event\Store, Event\Store\IsVersioned
+final class Store implements Event\Store\IsVersioned
 {
     private $pdo;
     private $serializer;

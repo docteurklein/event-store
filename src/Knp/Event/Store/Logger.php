@@ -6,7 +6,7 @@ use Knp\Event\Store;
 use Knp\Event\Event;
 use Knp\Event\Emitter\HasIdentity;
 
-final class Logger implements Store, Store\IsVersioned
+final class Logger implements Store\IsVersioned
 {
     private $store;
 
