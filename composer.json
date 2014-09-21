@@ -15,7 +15,7 @@
     },
     "require-dev": {
         "doctrine/dbal": "~2.4",
-        "phpspec/phpspec": "*@dev",
+        "phpspec/phpspec": "2.*@dev",
         "docteurklein/funk-spec": "*@dev",
         "rhumsaa/uuid": "~2.7.1",
         "symfony/debug": "~2.5",

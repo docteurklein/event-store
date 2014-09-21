@@ -2,12 +2,12 @@
 
 namespace Knp\Event;
 
-use Knp\Event\Event;
+use Knp\Event\Emitter\CanBeReplayed;
 use Traversable;
 
 interface Player
 {
-    const CAN_BE_REPLAYED = 'Knp\Event\Emitter\CanBeReplayed';
+    const CAN_BE_REPLAYED = CanBeReplayed::class;
 
     public function replay(Traversable $events, $class);
 }

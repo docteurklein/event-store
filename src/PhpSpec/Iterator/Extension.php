@@ -4,7 +4,6 @@ namespace PhpSpec\Iterator;
 
 use PhpSpec\Extension\ExtensionInterface;
 use PhpSpec\ServiceContainer;
-use PhpSpec\Iterator\Maintainer;
 
 final class Extension implements ExtensionInterface
 {

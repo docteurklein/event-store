@@ -2,8 +2,6 @@
 
 namespace Knp\Event;
 
-use Knp\Event\Store;
-use Knp\Event\Player;
 use Knp\Event\Exception\Store\NoResult;
 use PhpOption;
 
@@ -29,8 +27,7 @@ final class Repository
         try {
             $events = $this->store->findBy($class, $id);
             return new PhpOption\Some($this->player->replay($events, $class));
-        }
-        catch(NoResult $e) {
+        } catch (NoResult $e) {
             return PhpOption\None::create();
         }
     }
