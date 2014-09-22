@@ -21,8 +21,8 @@ before_script:
   - psql -U postgres < example/sql/event_store.sql
   - psql -U postgres -c 'create database event_store_projection;'
   - psql -U postgres < example/sql/event_store_projection.sql
-  - composer install --prefer-dist --dev
+  - composer install --prefer-dist
 
 script:
-    - ./bin/phpspec run -fpretty
-    - ./bin/funk funk
+  - ./bin/phpspec run -fpretty
+  - ./bin/funk funk

@@ -2,9 +2,6 @@
 
 namespace Knp\Event;
 
-use Knp\Event\Subscriber;
-use Knp\Event\Event;
-
 final class Dispatcher
 {
     private $listeners;
