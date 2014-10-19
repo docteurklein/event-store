@@ -4,6 +4,6 @@ namespace Knp\Event\Exception\Concurrency\Optimistic;
 
 use Knp\Event\Exception;
 
-class Conflict extends Exception
+final class Conflict extends Exception
 {
 }

@@ -5,7 +5,7 @@ namespace Knp\Event\Event;
 use Knp\Event\Event;
 use Knp\Event\Emitter\HasIdentity;
 
-class Versioned implements Event
+final class Versioned implements Event
 {
     private $event;
     private $version;

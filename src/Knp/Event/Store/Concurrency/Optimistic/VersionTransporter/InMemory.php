@@ -4,35 +4,27 @@ namespace Knp\Event\Store\Concurrency\Optimistic\VersionTransporter;
 
 use Knp\Event\Store\Concurrency\Optimistic\VersionTransporter;
 
-class Http implements VersionTransporter
+final class InMemory implements VersionTransporter
 {
-    private $queryStringVersion;
-    private $versionHeader;
-    private $etags;
+    private $default;
+    private $versions = [];
 
-    public function __construct($queryStringVersion = null, $versionHeader = null, array $etags = [])
+    public function __construct($default = 1)
     {
-        $this->queryStringVersion = $queryStringVersion;
-        $this->versionHeader = $versionHeader;
-        $this->etags = $etags;
+        $this->default = $default;
     }
 
     public function getExpectedVersion($class, $id)
     {
-        if (!empty($this->queryStringVersion)) {
-            return $this->queryStringVersion;
+        if (!empty($this->versions[$class][$id])) {
+            return $this->versions[$class][$id];
         }
 
-        if (!empty($this->versionHeader)) {
-            return $this->versionHeader;
-        }
+        return $this->default;
+    }
 
-        foreach ($this->etags as $etag) {
-            if (is_int($etag)) {
-                return $etag;
-            }
-        }
-
-        return 1;
+    public function update($class, $id, $version)
+    {
+        $this->versions[$class][$id] = $version;
     }
 }

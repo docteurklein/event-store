@@ -28,6 +28,7 @@ class OptimisticSpec extends ObjectBehavior
         $store->getCurrentVersion(Argument::cetera())->willReturn(1);
         $store->addSet(Argument::any())->shouldBeCalled();
         $versionTransporter->getExpectedVersion(Argument::cetera())->willReturn(1);
+        $versionTransporter->update(Argument::cetera())->shouldBeCalled(1);
         $this->addSet(new Event\Set($emitter->getWrappedObject(), [$event->getWrappedObject()]));
     }
 

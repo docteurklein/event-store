@@ -7,6 +7,7 @@ default:
         memory: ~
         pdo:
             dbname: event_store
+            dbuser: ~
         mongo:
             dbname: event
 

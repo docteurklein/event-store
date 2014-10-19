@@ -12,7 +12,7 @@
         "php": ">=5.5"
     },
     "require-dev": {
-        "ext-pdo-pgsql": "*",
+        "ext-pdo_pgsql": "*",
         "ext-mongo": "*",
         "jms/serializer": "~0.16",
         "doctrine/common": "~2.4",
@@ -21,7 +21,10 @@
         "docteurklein/funk-spec": "*@dev",
         "rhumsaa/uuid": "~2.7.1",
         "symfony/debug": "~2.5",
-        "bossa/phpspec2-expect": "*@dev"
+        "bossa/phpspec2-expect": "*@dev",
+        "symfony/http-foundation": "~2.5",
+        "symfony/http-kernel": "~2.5",
+        "symfony/form": "~2.5"
     },
     "autoload": {
         "psr-0": {

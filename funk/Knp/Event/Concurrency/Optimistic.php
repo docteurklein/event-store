@@ -19,7 +19,7 @@ class Optimistic implements \Funk\Spec
 
     function it_allows_to_store_aggregates_at_same_verison()
     {
-        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store, new VersionTransporter\Http(1))))->create();
+        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store, new VersionTransporter\InMemory(1))))->create();
 
         $repository->save($product = (new Product(null, 'test')));
         $fetch = $repository->find(Product::class, (string)$product->getId())->get();
@@ -29,14 +29,13 @@ class Optimistic implements \Funk\Spec
     function it_refuses_to_store_superseeded_versions()
     {
         $directRepo = (new Repository\Factory($this->store))->create();
-        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store, new VersionTransporter\Http(1))))->create();
-
+        $repository = (new Repository\Factory(new Store\Concurrency\Optimistic($this->store, new VersionTransporter\InMemory(1))))->create();
         $product = new Product(null, 'test');
         $product->rename('1');
         $product->rename('2');
         $directRepo->save($product);
 
-        $fetch = $repository->find(Product::class, (string)$product->getId())->get();
+        $fetch = $directRepo->find(Product::class, (string)$product->getId())->get();
         $fetch->rename('change 1');
         expect($repository)->toThrow(Conflict::class)->during('save', [$fetch]);
     }

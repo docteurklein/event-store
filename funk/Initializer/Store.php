@@ -17,7 +17,7 @@ class Store implements SpecInitializer
         $this->stores = [
             'memory' => function(Suite $suite) { return new \Knp\Event\Store\InMemory; },
             'pdo'    => function(Suite $suite) { return new \Knp\Event\Store\Pdo\Store(
-                new \PDO("pgsql:dbname={$suite->getSetting('dbname')}", null, null, [
+                new \PDO("pgsql:dbname={$suite->getSetting('dbname')}", $suite->getSetting('dbuser'), null, [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                     \PDO::ATTR_EMULATE_PREPARES => 0,
                 ]),

@@ -9,7 +9,7 @@ use Knp\Event\Reflection;
 use Knp\Event\Exception\Concurrency;
 use Knp\Event\Store\Concurrency\Optimistic\VersionTransporter;
 
-class Optimistic implements Store\IsVersioned
+final class Optimistic implements Store\IsVersioned
 {
     private $store;
     private $versionTransporter;
@@ -23,14 +23,19 @@ class Optimistic implements Store\IsVersioned
     public function addSet(Event\Set $events)
     {
         $emitter = $events->getEmitter();
-        $this->assertSameVersion($emitter);
+        $class = (new Reflection($emitter))->resolveClass($emitter);
+        $id = (string)$emitter->getId();
+
+        $this->assertSameVersion($emitter, $class, $id);
 
         $this->store->addSet($events);
+        $this->versionTransporter->update($class, $id, $this->store->getCurrentVersion($class, $id));
     }
 
     public function findBy($class, $id)
     {
         $emitter = $this->store->findBy($class, $id);
+        $this->versionTransporter->update($class, $id, $this->store->getCurrentVersion($class, $id));
 
         return $emitter;
     }
@@ -40,11 +45,8 @@ class Optimistic implements Store\IsVersioned
         return $this->store->getCurrentVersion($class, $id);
     }
 
-    private function assertSameVersion(HasIdentity $emitter)
+    private function assertSameVersion(HasIdentity $emitter, $class, $id)
     {
-        $class = (new Reflection($emitter))->resolveClass($emitter);
-        $id = (string)$emitter->getId();
-
         $currentVersion  = max(1, $this->store->getCurrentVersion($class, $id));
         $expectedVersion = $this->versionTransporter->getExpectedVersion($class, $id);
         if ($currentVersion !== $expectedVersion) {
