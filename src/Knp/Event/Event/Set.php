@@ -3,6 +3,7 @@
 namespace Knp\Event\Event;
 
 use Knp\Event\Emitter;
+use Knp\Event\Event;
 
 final class Set
 {

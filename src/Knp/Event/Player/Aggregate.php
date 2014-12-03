@@ -5,6 +5,7 @@ namespace Knp\Event\Player;
 use Knp\Event\Player;
 use Knp\Event\Event;
 use Traversable;
+use InvalidArgumentException;
 
 final class Aggregate implements Player
 {
@@ -24,7 +25,7 @@ final class Aggregate implements Player
         }
 
         if (!$this->default) {
-            throw new \InvalidArgumentException("$class is not registered to be replayable");
+            throw new InvalidArgumentException("$class is not registered to be replayable");
         }
 
         return $this->default->replay($events, $class);

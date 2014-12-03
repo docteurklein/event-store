@@ -1,0 +1,16 @@
+default:
+    autoload:
+        'funk': '%paths.base%'
+        'example': '%paths.base%'
+
+    suites:
+        memory: ~
+        pdo:
+            dbname: event_store
+            dbuser: ~
+        mongo:
+            dbname: event
+
+    extensions:
+        TestWork\PhpSpecExtension\Extension: ~
+        funk\Initializer\Extension: ~

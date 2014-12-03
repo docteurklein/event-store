@@ -13,12 +13,16 @@ use Traversable;
 
 final class ReflectionBased implements Player
 {
+    /**
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     **/
     public function replay(Traversable $events, $class)
     {
         $reflect = new ReflectionClass($class);
 
         if (!$reflect->implementsInterface(self::CAN_BE_REPLAYED)) {
-            throw new InvalidArgumentException(sprintf('"%s" must implement "%s"', $class, self::CAN_BE_REPLAYED));
+            throw new InvalidArgumentException(sprintf('"%s" must implement "%s".', $class, self::CAN_BE_REPLAYED));
         }
 
         $object = $reflect->newInstanceWithoutConstructor();
@@ -33,17 +37,19 @@ final class ReflectionBased implements Player
             if ($method->isStatic()) {
                 $object = $method->invokeArgs(null, $event->getAttributes());
                 if (!$object instanceof $class) {
-                    throw new BadMethodCallException(sprintf('%s::%s is considered a static constructor and thus should return an instance', $class, $method->getName()));
+                    throw new BadMethodCallException(sprintf('%s::%s is considered a static constructor and thus should return an instance.', $class, $method->getName()));
                 }
                 continue;
             }
             $method->invokeArgs($object, $event->getAttributes());
         }
-        $object->popEvents();
 
         return $object;
     }
 
+    /**
+     * @throws LogicException
+     **/
     private function getMethodName(CanBeReplayed $object, ReflectionClass $reflect, array $methods, Event $event)
     {
         if (isset($methods[$event->getName()])) {

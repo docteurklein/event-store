@@ -42,8 +42,6 @@ CREATE TABLE event (
 );
 
 
-ALTER TABLE public.event OWNER TO florian;
-
 --
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
